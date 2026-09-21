@@ -156,3 +156,87 @@ export async function notifyUnderpaid(order: Order, listing: Listing) {
   );
   await notifyAdmin(underpaidAdminText(order, listing));
 }
+
+export async function notifyPurchase(order: Order, listing: Listing) {
+  await sendTelegramMessage(
+    order.telegramUserId,
+    [
+      `<b>Satın alındı</b> — ${listing.title}`,
+      `${formatUsdt(order.amount)} bakiyeden düşüldü.`,
+      "Nizam teslimatı bu sohbetten yazacak.",
+    ].join("\n"),
+  );
+  await notifyAdmin(
+    [
+      `<b>Bakiyeden satış</b>`,
+      `${listing.title} · ${formatUsdt(order.amount)}`,
+      `Alıcı: <code>${order.telegramUserId}</code>`,
+      `Sipariş: <code>${order.id}</code>`,
+      "Teslimatı (auth-code / zip) alıcıya yaz.",
+    ].join("\n"),
+  );
+}
+
+export async function notifyTopupCreated(order: Order) {
+  const cfg = getServerConfig();
+  await sendTelegramMessage(
+    order.telegramUserId,
+    [
+      `<b>Bakiye yükleme</b>`,
+      `${formatUsdt(order.amount)} · ${order.network} ${order.asset}`,
+      cfg.wallet ? `Cüzdan: <code>${cfg.wallet}</code>` : "Cüzdan henüz ayarlı değil.",
+      `Pencere: ${cfg.watchWindowMin} dk. Yanlış ağ/token eşleşmez.`,
+      `Sipariş: <code>${order.id}</code>`,
+    ].join("\n"),
+  );
+  await notifyAdmin(
+    [
+      `<b>Bekleyen bakiye yükleme</b>`,
+      `${formatUsdt(order.amount)}`,
+      `Alıcı: <code>${order.telegramUserId}</code> ${order.telegramName ?? ""}`,
+      `Sipariş: <code>${order.id}</code>`,
+    ].join("\n"),
+  );
+}
+
+export async function notifyTopupPaid(order: Order) {
+  await sendTelegramMessage(
+    order.telegramUserId,
+    [
+      `<b>Bakiye yüklendi</b>`,
+      `${formatUsdt(order.amount)} hesabına işlendi. Katalogdan satın alabilirsin.`,
+      order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
+  await notifyAdmin(
+    [
+      `<b>Bakiye yüklendi</b>`,
+      `${formatUsdt(order.amount)}`,
+      `Alıcı: <code>${order.telegramUserId}</code>`,
+      order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
+      `Sipariş: <code>${order.id}</code>`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
+}
+
+export async function notifyTopupExpired(order: Order) {
+  await sendTelegramMessage(
+    order.telegramUserId,
+    [
+      `<b>Yükleme süresi doldu</b>`,
+      `${formatUsdt(order.amount)} eşleşmedi. Yeni Bakiye Yükle açabilirsin.`,
+      `Sipariş: <code>${order.id}</code>`,
+    ].join("\n"),
+  );
+  await notifyAdmin(
+    [
+      `<b>Bakiye yükleme süresi doldu</b>`,
+      `${formatUsdt(order.amount)} · alıcı <code>${order.telegramUserId}</code>`,
+      `Sipariş: <code>${order.id}</code>`,
+    ].join("\n"),
+  );
+}

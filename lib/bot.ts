@@ -1,30 +1,52 @@
 import { Bot, Keyboard, webhookCallback } from "grammy";
 import { getServerConfig, isAdmin } from "@/lib/config";
-import { expireOverdueOrders, getOrder, listOrdersForUser, markOrder } from "@/lib/orders";
+import { expireOverdueOrders, getOrder, isTopup, listOrdersForUser, markOrder } from "@/lib/orders";
 import { readListings } from "@/lib/store";
 import { formatUsdt, orderStatusLabel } from "@/lib/format";
 
 type GlobalBot = typeof globalThis & { __sellshellBot?: Bot | null };
 
+function appPath(base: string, path: string) {
+  const root = base.replace(/\/+$/, "");
+  return path === "/" ? root : `${root}${path}`;
+}
+
 function welcomeText(name: string, userId: number) {
   return [
     `Hoş geldin, ${name}.`,
     "",
-    "sellshell — Nizam'ın kendi domain ve siteleri. Ödeme USDT TRC-20, kendi cüzdana.",
+    "sellshell — Nizam'ın kendi domain ve siteleri. Giriş yok; Mini App Telegram kimliğin.",
     `ID: <code>${userId}</code>`,
     "",
-    "Katalogu Mini App'ten aç. Siparişlerin ve destek aşağıda.",
+    "Domainler · Satışa hazır liste · Siparişlerim · Bakiye yükle",
   ].join("\n");
 }
 
 function replyKeyboard(miniAppUrl: string) {
   const keyboard = new Keyboard();
   if (miniAppUrl.startsWith("https://")) {
-    keyboard.webApp("Domainler", miniAppUrl).text("Siparişlerim").row().text("Destek");
+    keyboard
+      .webApp("Domainler", appPath(miniAppUrl, "/"))
+      .webApp("Satışa hazır liste", appPath(miniAppUrl, "/stock"))
+      .row()
+      .webApp("Siparişlerim", appPath(miniAppUrl, "/orders"))
+      .webApp("Bakiye yükle", appPath(miniAppUrl, "/balance"));
   } else {
-    keyboard.text("Domainler").text("Siparişlerim").row().text("Destek");
+    keyboard
+      .text("Domainler")
+      .text("Satışa hazır liste")
+      .row()
+      .text("Siparişlerim")
+      .text("Bakiye yükle");
   }
   return keyboard.resized().persistent();
+}
+
+function openHint(miniAppUrl: string, path: string, label: string) {
+  if (miniAppUrl.startsWith("https://")) {
+    return `${label} Mini App butonundan açılır.`;
+  }
+  return `${label}: ${appPath(miniAppUrl, path)} (local demo — HTTPS Mini App sonra)`;
 }
 
 export function getBot() {
@@ -44,8 +66,8 @@ export function getBot() {
       .setChatMenuButton({
         menu_button: {
           type: "web_app",
-          text: "Katalog",
-          web_app: { url: miniAppUrl },
+          text: "Domainler",
+          web_app: { url: appPath(miniAppUrl, "/") },
         },
       })
       .catch(() => {
@@ -63,13 +85,15 @@ export function getBot() {
   });
 
   bot.hears("Domainler", async (ctx) => {
-    if (miniAppUrl.startsWith("https://")) {
-      await ctx.reply("Katalog Mini App butonundan açılır.");
-      return;
-    }
-    await ctx.reply(
-      `Mini App henüz HTTPS değil — Telegram WebApp butonu için kendi domain gerekir. Local demo: ${miniAppUrl}`,
-    );
+    await ctx.reply(openHint(miniAppUrl, "/", "Domainler"));
+  });
+
+  bot.hears("Satışa hazır liste", async (ctx) => {
+    await ctx.reply(openHint(miniAppUrl, "/stock", "Satışa hazır liste"));
+  });
+
+  bot.hears("Bakiye yükle", async (ctx) => {
+    await ctx.reply(openHint(miniAppUrl, "/balance", "Bakiye yükle"));
   });
 
   bot.hears("Siparişlerim", async (ctx) => {
@@ -78,20 +102,16 @@ export function getBot() {
     const orders = await listOrdersForUser(String(ctx.from.id));
     const listings = await readListings();
     if (!orders.length) {
-      await ctx.reply("Henüz siparişin yok. Domainler'den katalogu aç.");
+      await ctx.reply("Henüz siparişin yok. Domainler veya Satışa hazır listeden bak.");
       return;
     }
     const lines = orders.slice(0, 8).map((order) => {
-      const listing = listings.find((item) => item.id === order.listingId);
-      return `• ${listing?.title ?? order.listingId} — ${orderStatusLabel(order.status)} · ${formatUsdt(order.amount)}\n<code>${order.id}</code>`;
+      const title = isTopup(order)
+        ? "Bakiye yükleme"
+        : (listings.find((item) => item.id === order.listingId)?.title ?? order.listingId);
+      return `• ${title} — ${orderStatusLabel(order.status)} · ${formatUsdt(order.amount)}\n<code>${order.id}</code>`;
     });
     await ctx.reply(lines.join("\n\n"), { parse_mode: "HTML" });
-  });
-
-  bot.hears("Destek", async (ctx) => {
-    await ctx.reply(
-      "Teslimat, geç TX veya yanlış ağ için buradan yaz. sellshell Nizam'ın kendi stoğu — pazaryeri veya satıcı başvurusu yok.",
-    );
   });
 
   bot.command("paid", async (ctx) => {

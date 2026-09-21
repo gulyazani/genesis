@@ -1,0 +1,13 @@
+import { CatalogPage } from "@/components/catalog-page";
+import { loadCatalog } from "@/lib/catalog-data";
+
+export const dynamic = "force-dynamic";
+
+export default async function StockPage() {
+  const listings = (await loadCatalog()).filter(
+    (item) => item.status === "available",
+  );
+  return (
+    <CatalogPage listings={listings} variant="ready" title="SATIŞA HAZIR" />
+  );
+}

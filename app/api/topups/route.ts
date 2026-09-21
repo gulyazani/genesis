@@ -1,20 +1,10 @@
 import { NextResponse } from "next/server";
-import { listOrdersForUser, purchaseFromBalance } from "@/lib/orders";
+import { createTopup } from "@/lib/orders";
 import { requireBuyer } from "@/lib/telegram-auth";
 import { ensureWatcher } from "@/lib/watcher";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-export async function GET(req: Request) {
-  ensureWatcher();
-  const { session, error } = requireBuyer(req);
-  if (error) {
-    return NextResponse.json({ error }, { status: 401 });
-  }
-  const orders = await listOrdersForUser(String(session.user.id));
-  return NextResponse.json({ orders, session });
-}
 
 export async function POST(req: Request) {
   ensureWatcher();
@@ -22,25 +12,23 @@ export async function POST(req: Request) {
   if (error) {
     return NextResponse.json({ error }, { status: 401 });
   }
-  let body: { listingId?: string };
+  let body: { amount?: number; txHashHint?: string };
   try {
-    body = (await req.json()) as { listingId?: string };
+    body = (await req.json()) as { amount?: number; txHashHint?: string };
   } catch {
     return NextResponse.json({ error: "Geçersiz istek." }, { status: 400 });
-  }
-  if (!body.listingId) {
-    return NextResponse.json({ error: "listingId gerekli." }, { status: 400 });
   }
   const name = [session.user.first_name, session.user.last_name]
     .filter(Boolean)
     .join(" ");
-  const result = await purchaseFromBalance({
-    listingId: body.listingId,
+  const result = await createTopup({
+    amount: Number(body.amount),
     telegramUserId: String(session.user.id),
     telegramName: name || session.user.username,
+    txHashHint: body.txHashHint,
   });
   if ("error" in result) {
-    return NextResponse.json(result, { status: result.needTopup ? 402 : 409 });
+    return NextResponse.json({ error: result.error }, { status: 400 });
   }
   return NextResponse.json(result, { status: 201 });
 }

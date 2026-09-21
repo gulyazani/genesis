@@ -2,9 +2,9 @@
 
 Nizam Özdemir’in kendi domain ve web sitelerini sattığı Telegram botu + Mini App.
 
-Ödeme: **USDT TRC-20**, Nizam’ın cüzdanına. Incoming-tx watcher tutarı (ve varsa TX hash’i) eşleştirir → sipariş `paid` → bot alıcı + admin’e yazar. Merchant, IBAN, Stars, Telegram Payments yok.
+Ödeme: **USDT TRC-20** top-up Nizam’ın cüzdanına; watcher bakiyeyi artırır. İlan **bakiyeden**. Merchant, IBAN, Stars, Telegram Payments yok.
 
-Yüzey: Telegram Mini App. Dil: Türkçe. Host: kendi VPS (Docker + Caddy).
+Yüzey kilitli: **Domainler** · **Satışa hazır liste** · **Siparişlerim** · **Bakiye yükle**. Dil: Türkçe. Host: kendi VPS (Docker + Caddy). Giriş yok — `initData`.
 
 **Hedef domain:** [https://supershell.click](https://supershell.click) — Mini App ve webhook için. Webhook yolu: `https://supershell.click/api/telegram/webhook`. `setWebhook` henüz çağrılmadı: domain şu an DNS çözülmüyor; VPS + TLS hazır olunca çağır.
 
@@ -25,24 +25,31 @@ Tarayıcıda **yerel demo** çalışır (Telegram `initData` yok). Prod benzeri 
 
 | Yol | Ne |
 | --- | --- |
-| `/` | Katalog (domain + site + satıldı) |
+| `/` | Domainler |
+| `/stock` | Satışa hazır liste (`available`) |
+| `/balance` | Bakiye yükle |
+| `/orders` | Siparişlerim (alış + top-up) |
 | `/listings/anadoluyazilim-com` | Domain detay |
-| `/listings/mutfakrehberi-com` | Site detay |
-| `/listings/istanbulajans-net` | Satılmış ilan |
-| `/checkout/anadoluyazilim-com` | Checkout (cüzdan, ağ, hash, pencere) |
-| `/orders` | Siparişlerim |
-| `/orders/<id>` | Pending / paid / underpaid / expired + local mock butonları |
+| `/checkout/anadoluyazilim-com` | Bakiyeden satın al (yetersizse Bakiye yükle) |
+| `/orders/<id>` | Durum + local mock (top-up) |
 
-Mock ödeme (anahtarsız): sipariş sayfasında **Eşleşen ödemeyi simüle et**, veya:
+Mock bakiye yükleme (demo user, `DEV_BYPASS_TELEGRAM=1`):
 
 ```bash
-curl -s -X POST http://127.0.0.1:43127/api/orders \
+curl -s -X POST http://127.0.0.1:43127/api/topups \
   -H 'content-type: application/json' \
-  -d '{"listingId":"anadoluyazilim-com"}'
+  -d '{"amount":50}'
 
+# dönen order.id sayfasında “Eşleşen ödemeyi simüle et” veya:
 curl -s -X POST http://127.0.0.1:43127/api/watcher/mock \
   -H 'content-type: application/json' \
-  -d '{"amount":1850}'
+  -d '{"amount":50}'
+
+curl -s http://127.0.0.1:43127/api/me   # balanceUsdt: 50
+
+curl -s -X POST http://127.0.0.1:43127/api/orders \
+  -H 'content-type: application/json' \
+  -d '{"listingId":"kucukisletme-co"}'   # 420 USDT — yetersizse 402
 ```
 
 ## Env
@@ -74,7 +81,7 @@ curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/setWebhook" \
   -d "url=https://supershell.click/api/telegram/webhook"
 ```
 
-Komutlar: `/start` — Domainler (Mini App), Siparişlerim, Destek.
+`/start` klavye: Domainler · Satışa hazır liste · Siparişlerim · Bakiye yükle. Admin yedek: `/paid` `/expire`.
 
 Acil yedek (ana yol watcher): `/paid <sipariş-id>`, `/expire <sipariş-id>` — yalnızca `TELEGRAM_ADMIN_ID`.
 
@@ -93,7 +100,8 @@ pm2 alternatifi: `npm run build && npm start` — aynı port, aynı env, Caddy `
 
 ## Veri
 
-- `data/listings.json` — ilanlar (`available` / `reserved` / `sold`)
-- `data/orders.json` — siparişler (disk, watcher yazar)
+- `data/listings.json` — Nizam’ın ilanları
+- `data/orders.json` — alış + top-up
+- `data/users.json` — `telegramUserId` → `balanceUsdt`
 
 Admin CRUD UI ve SQL Faz 2. Registrar otomasyonu yok.

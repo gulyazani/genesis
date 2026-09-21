@@ -13,7 +13,7 @@ import { displayUrl, formatDateTime, formatUsdt, orderStatusLabel } from "@/lib/
 import type { Listing, Order, Session } from "@/lib/types";
 
 export function OrderPage({ id }: { id: string }) {
-  const { session, initData } = useSession();
+  const { session, initData, refresh } = useSession();
   const [order, setOrder] = useState<Order | null>(null);
   const [listing, setListing] = useState<Listing | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +63,7 @@ export function OrderPage({ id }: { id: string }) {
         initData,
       );
       await load();
+      await refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Mock ödeme başarısız.");
     } finally {
@@ -123,11 +124,17 @@ export function OrderPage({ id }: { id: string }) {
             ) : null}
           </section>
 
+          {order.status === "pending" && order.kind === "listing" ? (
+            <section className="rounded-[22px] bg-[#12121a] p-5 text-sm text-white/60">
+              Eski doğrudan zincir siparişi — izleme devam ediyor.
+            </section>
+          ) : null}
+
           {order.status === "pending" ? (
             <section className="rounded-[22px] bg-[#12121a] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
               <p className="text-sm leading-relaxed text-white/70">
                 USDT’yi {order.network} ile aşağıdaki adrese gönder. Watcher
-                eşleşince sipariş paid olur; Nizam teslimatı yazar.
+                eşleşince {order.kind === "topup" ? "bakiyen artar" : "sipariş paid olur"}.
               </p>
               <p className="mt-3 break-all font-mono text-sm">
                 {session?.config.wallet ||
@@ -165,7 +172,9 @@ export function OrderPage({ id }: { id: string }) {
 
           {order.status === "paid" ? (
             <section className="rounded-[22px] bg-emerald-500/10 p-5 text-sm text-emerald-50 ring-1 ring-emerald-400/20">
-              Ödeme görüldü. Teslimat (auth-code veya zip) Telegram sohbetinden gelecek.
+              {order.kind === "topup"
+                ? "Bakiye yüklendi. Katalogdan bakiyeyle satın alabilirsin."
+                : "Satın alındı. Teslimat (auth-code veya zip) Telegram sohbetinden gelecek."}
             </section>
           ) : null}
 

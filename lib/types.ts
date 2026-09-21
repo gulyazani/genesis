@@ -28,8 +28,11 @@ export type OrderStatus =
   | "expired"
   | "rejected";
 
+export type OrderKind = "listing" | "topup";
+
 export type Order = {
   id: string;
+  kind: OrderKind;
   listingId: string;
   telegramUserId: string;
   telegramName?: string;
@@ -45,6 +48,15 @@ export type Order = {
   createdAt: string;
   expiresAt: string;
 };
+
+export type UserRecord = {
+  telegramUserId: string;
+  balanceUsdt: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UsersMap = Record<string, UserRecord>;
 
 export type IncomingTx = {
   id: string;
@@ -78,4 +90,5 @@ export type Session = {
   user: TelegramUser;
   mode: SessionMode;
   config: PublicConfig;
+  balanceUsdt: number;
 };

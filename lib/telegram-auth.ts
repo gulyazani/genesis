@@ -62,13 +62,13 @@ export function resolveSession(req: Request): Session {
   if (initData && cfg.botToken) {
     const user = verifyInitData(initData, cfg.botToken);
     if (user) {
-      return { user, mode: "telegram", config: getPublicConfig() };
+      return { user, mode: "telegram", config: getPublicConfig(), balanceUsdt: 0 };
     }
   }
   if (cfg.devBypass) {
-    return { user: DEMO_USER, mode: "demo", config: getPublicConfig() };
+    return { user: DEMO_USER, mode: "demo", config: getPublicConfig(), balanceUsdt: 0 };
   }
-  return { user: DEMO_USER, mode: "blocked", config: getPublicConfig() };
+  return { user: DEMO_USER, mode: "blocked", config: getPublicConfig(), balanceUsdt: 0 };
 }
 
 export function requireBuyer(req: Request) {

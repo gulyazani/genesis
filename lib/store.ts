@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { getServerConfig } from "@/lib/config";
-import type { Listing, Order } from "@/lib/types";
+import type { Listing, Order, UsersMap } from "@/lib/types";
 
-type StoreFile = "listings" | "orders";
+type StoreFile = "listings" | "orders" | "users";
 
 let queue: Promise<unknown> = Promise.resolve();
 
@@ -52,15 +52,25 @@ export function readOrders() {
   return enqueue(() => readJson<Order[]>("orders", []));
 }
 
+export function readUsers() {
+  return enqueue(() => readJson<UsersMap>("users", {}));
+}
+
 export function mutateStore<T>(
-  fn: (state: { listings: Listing[]; orders: Order[] }) => Promise<T> | T,
+  fn: (state: {
+    listings: Listing[];
+    orders: Order[];
+    users: UsersMap;
+  }) => Promise<T> | T,
 ) {
   return enqueue(async () => {
     const listings = await readJson<Listing[]>("listings", []);
     const orders = await readJson<Order[]>("orders", []);
-    const result = await fn({ listings, orders });
+    const users = await readJson<UsersMap>("users", {});
+    const result = await fn({ listings, orders, users });
     await writeJson("listings", listings);
     await writeJson("orders", orders);
+    await writeJson("users", users);
     return result;
   });
 }

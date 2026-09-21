@@ -34,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     user: DEMO_USER,
     mode: config.devBypass ? ("demo" as const) : ("blocked" as const),
     config,
+    balanceUsdt: 0,
   };
   return (
     <html

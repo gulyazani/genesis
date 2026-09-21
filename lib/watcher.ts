@@ -4,11 +4,14 @@ import {
   lateTxAdminText,
   notifyAdmin,
   notifyPaid,
+  notifyTopupPaid,
   notifyUnderpaid,
   sendTelegramMessage,
   wrongAssetText,
 } from "@/lib/notify";
+import { isTopup } from "@/lib/orders";
 import { mutateStore } from "@/lib/store";
+import { creditUser } from "@/lib/users";
 import type { IncomingTx, Listing, Order } from "@/lib/types";
 
 const mockPool: IncomingTx[] = [];
@@ -141,7 +144,7 @@ export async function applyIncomingTx(tx: IncomingTx) {
     order?: Order;
     listing?: Listing;
     collision?: boolean;
-  }>(({ listings, orders }) => {
+  }>(({ listings, orders, users }) => {
     if (orders.some((item) => item.matchedTxId === tx.id)) {
       seenTx.add(tx.id);
       return { outcome: "seen" };
@@ -172,8 +175,13 @@ export async function applyIncomingTx(tx: IncomingTx) {
       if (collision) {
         order.note = "Aynı tutarda birden fazla bekleyen vardı; en eskiye bağlandı.";
       }
+      if (isTopup(order)) {
+        creditUser(users, order.telegramUserId, order.amount);
+      } else {
+        const listing = listings.find((item) => item.id === order.listingId);
+        if (listing) listing.status = "sold";
+      }
       const listing = listings.find((item) => item.id === order.listingId);
-      if (listing) listing.status = "sold";
       seenTx.add(tx.id);
       return {
         outcome: "paid",
@@ -210,16 +218,30 @@ export async function applyIncomingTx(tx: IncomingTx) {
     return { outcome: "unmatched" };
   });
 
-  if (result.outcome === "paid" && result.order && result.listing) {
-    void notifyPaid(result.order, result.listing);
+  if (result.outcome === "paid" && result.order) {
+    if (isTopup(result.order)) void notifyTopupPaid(result.order);
+    else if (result.listing) void notifyPaid(result.order, result.listing);
     if (result.collision) {
       void notifyAdmin(
         `<b>Aynı tutarda birden fazla bekleyen</b>\n${tx.amount} USDT TX <code>${tx.id}</code> en eski siparişe bağlandı: <code>${result.order.id}</code>`,
       );
     }
   }
-  if (result.outcome === "underpaid" && result.order && result.listing) {
-    void notifyUnderpaid(result.order, result.listing);
+  if (result.outcome === "underpaid" && result.order) {
+    if (result.listing) void notifyUnderpaid(result.order, result.listing);
+    else {
+      void sendTelegramMessage(
+        result.order.telegramUserId,
+        [
+          `<b>Eksik tutar</b> — bakiye yükleme`,
+          `Gelen: ${result.order.receivedAmount ?? 0} / beklenen ${result.order.amount} USDT.`,
+          "Otomatik yükleme yok. Kalanı gönder veya yeni yükleme aç.",
+        ].join("\n"),
+      );
+      void notifyAdmin(
+        `<b>Eksik bakiye yükleme</b>\nbeklenen ${result.order.amount}, gelen ${result.order.receivedAmount ?? 0}\nAlıcı: <code>${result.order.telegramUserId}</code>`,
+      );
+    }
   }
   if (result.outcome === "late") {
     void notifyAdmin(lateTxAdminText(tx.id, tx.amount));

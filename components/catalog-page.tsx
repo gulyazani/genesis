@@ -4,10 +4,18 @@ import { Catalog } from "@/components/catalog";
 import { AppShell } from "@/components/shell";
 import type { Listing } from "@/lib/types";
 
-export function CatalogPage({ listings }: { listings: Listing[] }) {
+export function CatalogPage({
+  listings,
+  variant,
+  title,
+}: {
+  listings: Listing[];
+  variant: "domains" | "ready";
+  title: string;
+}) {
   return (
-    <AppShell>
-      <Catalog listings={listings} />
+    <AppShell title={title}>
+      <Catalog listings={listings} variant={variant} />
     </AppShell>
   );
 }

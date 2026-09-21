@@ -9,25 +9,40 @@ import type { Listing, ListingStatus, ListingType } from "@/lib/types";
 type Filter = "all" | ListingType | "sold";
 type SortKey = "price-desc" | "price-asc" | "age-desc";
 
-const FILTERS: { id: Filter; label: string; icon: typeof Globe }[] = [
-  { id: "all", label: "Tümü", icon: LayoutGrid },
-  { id: "domain", label: "Domain", icon: Globe },
-  { id: "website", label: "Site", icon: AppWindow },
-  { id: "sold", label: "Satıldı", icon: CheckCircle2 },
-];
-
-export function Catalog({ listings }: { listings: Listing[] }) {
+export function Catalog({
+  listings,
+  variant,
+}: {
+  listings: Listing[];
+  variant: "domains" | "ready";
+}) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<SortKey>("price-desc");
 
+  const filters =
+    variant === "domains"
+      ? ([
+          { id: "all" as const, label: "Tümü", icon: LayoutGrid },
+          { id: "sold" as const, label: "Satıldı", icon: CheckCircle2 },
+        ] as const)
+      : ([
+          { id: "all" as const, label: "Tümü", icon: LayoutGrid },
+          { id: "domain" as const, label: "Domain", icon: Globe },
+          { id: "website" as const, label: "Site", icon: AppWindow },
+        ] as const);
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = listings.filter((item) => {
+      if (variant === "domains" && item.type !== "domain") return false;
+      if (variant === "ready" && item.status !== "available") return false;
       if (filter === "sold" && item.status !== "sold") return false;
       if (filter === "domain" && item.type !== "domain") return false;
       if (filter === "website" && item.type !== "website") return false;
-      if (filter !== "sold" && item.status === "sold") return false;
+      if (variant === "domains" && filter !== "sold" && item.status === "sold") {
+        return false;
+      }
       if (!q) return true;
       const hay = `${item.title} ${item.url ?? ""} ${item.summary} ${item.description}`.toLowerCase();
       return hay.includes(q);
@@ -43,9 +58,13 @@ export function Catalog({ listings }: { listings: Listing[] }) {
       }
       return b.price - a.price;
     });
-  }, [listings, query, filter, sort]);
+  }, [listings, query, filter, sort, variant]);
 
-  const liveCount = listings.filter((item) => item.status !== "sold").length;
+  const liveCount = listings.filter((item) =>
+    variant === "ready"
+      ? item.status === "available"
+      : item.type === "domain" && item.status !== "sold",
+  ).length;
 
   return (
     <div>
@@ -54,13 +73,15 @@ export function Catalog({ listings }: { listings: Listing[] }) {
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Domain veya site ara…"
+          placeholder={
+            variant === "domains" ? "Domain ara…" : "Satılık domain veya site ara…"
+          }
           className="h-11 rounded-full border-white/8 bg-[#12121a] pl-10 text-[15px] placeholder:text-white/30"
         />
       </label>
 
       <div className="-mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
-        {FILTERS.map((item) => {
+        {filters.map((item) => {
           const active = filter === item.id;
           const Icon = item.icon;
           return (
@@ -100,7 +121,7 @@ export function Catalog({ listings }: { listings: Listing[] }) {
       <div className="mt-3 flex items-center justify-between text-[11px] font-medium tracking-[0.14em] text-white/30">
         <span className="inline-flex items-center gap-2">
           <span className="size-1.5 rounded-full bg-emerald-400" />
-          CANLI {liveCount} KAYIT
+          {variant === "ready" ? "SATILIK" : "CANLI"} {liveCount} KAYIT
         </span>
       </div>
 
@@ -108,8 +129,10 @@ export function Catalog({ listings }: { listings: Listing[] }) {
         {visible.length === 0 ? (
           <div className="rounded-[22px] bg-[#12121a] px-4 py-10 text-center text-sm text-white/55 ring-1 ring-white/6">
             {listings.length === 0
-              ? "Katalog boş. listings.json’a ilan ekle."
-              : "Bu aramaya uyan ilan yok. Filtreleri temizleyip tekrar dene."}
+              ? variant === "ready"
+                ? "Satışa hazır ilan yok."
+                : "Domain kataloğu boş."
+              : "Bu aramaya uyan ilan yok."}
           </div>
         ) : (
           visible.map((listing) => (

@@ -49,7 +49,11 @@ export function OrdersList() {
               className="block rounded-[18px] bg-[#12121a] px-4 py-4 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
             >
               <div className="flex items-center justify-between gap-3">
-                <p className="font-medium">{order.listingId}</p>
+                <p className="font-medium">
+                  {order.kind === "topup"
+                    ? "Bakiye yükleme"
+                    : order.listingId || "Sipariş"}
+                </p>
                 <p className="text-sm text-white/50">{formatUsdt(order.amount)}</p>
               </div>
               <p className="mt-1 text-xs text-white/40">
