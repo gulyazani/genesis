@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      WATCHER_MOCK: ${WATCHER_MOCK:-0}
+      DEV_BYPASS_TELEGRAM: ${DEV_BYPASS_TELEGRAM:-0}
+      PORT: 43127
+    ports:
+      - "43127:43127"
+    volumes:
+      - sellshell-data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  sellshell-data:

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "anadoluyazilim-com",
+    "type": "domain",
+    "title": "anadoluyazilim.com",
+    "url": "https://anadoluyazilim.com",
+    "price": 1850,
+    "currency": "USD",
+    "status": "available",
+    "tier": "orta",
+    "summary": "Yazılım ajansı veya SaaS için kısa, akılda kalan .com.",
+    "description": "2019'dan beri kayıtlı bir .com. Anadolu / yazılım ikilisi hem ajans hem ürün markası için temiz duruyor. Whois gizliliği açık; ödeme görünce auth-code Telegram'dan iletilir. Site içeriği yok — yalnızca domain.",
+    "highlights": [
+      "2019'dan beri aynı kayıt",
+      "Whois gizlilik açık",
+      "Auth-code hazır"
+    ],
+    "registrar": "Namecheap",
+    "registeredAt": "2019-03-18",
+    "expiresAt": "2027-03-18",
+    "deliveryNote": "Ödeme eşleşince auth-code ve registrar transfer adımları sohbette."
+  },
+  {
+    "id": "mutfakrehberi-com",
+    "type": "website",
+    "title": "mutfakrehberi.com",
+    "url": "https://mutfakrehberi.com",
+    "price": 4200,
+    "currency": "USD",
+    "status": "available",
+    "tier": "ust",
+    "summary": "Hazır yemek blogu: tarifler, kategoriler, Next.js vitrin.",
+    "description": "Yayında olan bir yemek sitesi. 36 tarif yazısı, kategori sayfaları ve iletişim formu hazır. Kaynak (zip + git) ve DNS talimatı teslim edilir. Hosting alıcının; içerik ve marka adı satışa dahil.",
+    "highlights": [
+      "36 yayınlanmış tarif",
+      "Next.js + Markdown içerik",
+      "Zip ve git teslim"
+    ],
+    "pageCount": 42,
+    "deliveryNote": "Ödeme sonrası zip, git erişimi ve DNS kesim notu Telegram'dan."
+  },
+  {
+    "id": "istanbulajans-net",
+    "type": "domain",
+    "title": "istanbulajans.net",
+    "url": "https://istanbulajans.net",
+    "price": 960,
+    "currency": "USD",
+    "status": "sold",
+    "tier": "orta",
+    "summary": "İstanbul odaklı ajans adı — satıldı.",
+    "description": "Bu domain satıldı. Katalogda referans olarak duruyor; checkout kapalı.",
+    "highlights": ["Satış tamamlandı"],
+    "registrar": "Google Domains / Squarespace",
+    "registeredAt": "2021-08-02",
+    "expiresAt": "2026-08-02"
+  },
+  {
+    "id": "kucukisletme-co",
+    "type": "domain",
+    "title": "kucukisletme.co",
+    "url": "https://kucukisletme.co",
+    "price": 420,
+    "currency": "USD",
+    "status": "available",
+    "tier": "eko",
+    "summary": "Küçük işletme vitrini için kısa .co — giriş fiyatı.",
+    "description": ".co uzantılı, okunması kolay bir isim. Yeni kayıt değil; 2023'ten beri duruyor. Site yok, yalnızca domain transferi.",
+    "highlights": [
+      "Kısa isim",
+      "Eko fiyat",
+      "Hızlı transfer"
+    ],
+    "registrar": "Porkbun",
+    "registeredAt": "2023-01-11",
+    "expiresAt": "2027-01-11",
+    "deliveryNote": "Auth-code aynı gün, ödeme görünce."
+  },
+  {
+    "id": "atolyeden-com",
+    "type": "website",
+    "title": "atolyeden.com",
+    "url": "https://atolyeden.com",
+    "price": 2800,
+    "currency": "USD",
+    "status": "available",
+    "tier": "orta",
+    "summary": "El işi / atölye e-ticaret vitrini, ürün kartları hazır.",
+    "description": "Küçük bir atölye vitrini: 12 ürün kartı, hakkımızda ve sipariş notu sayfası. Stok ve ödeme alıcıya kalır — bu satış vitrin + domain. Teslimat zip + DNS.",
+    "highlights": [
+      "12 ürün kartı",
+      "Domain + vitrin birlikte",
+      "Zip teslim"
+    ],
+    "pageCount": 18,
+    "deliveryNote": "Domain auth-code ve site zip'i aynı sohbette."
+  }
+]

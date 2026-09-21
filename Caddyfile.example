@@ -1,0 +1,7 @@
+# VPS'te Caddy. Domain'i BotFather Mini App URL ve webhook ile aynı tut.
+# Örnek: caddy run --config Caddyfile
+
+{$SELLSHELL_DOMAIN:sellshell.example.com} {
+  encode gzip
+  reverse_proxy app:43127
+}
