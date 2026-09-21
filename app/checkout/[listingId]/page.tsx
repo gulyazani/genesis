@@ -1,4 +1,7 @@
 import { CheckoutPage } from "@/components/checkout-page";
+import { loadListing } from "@/lib/catalog-data";
+
+export const dynamic = "force-dynamic";
 
 export default async function CheckoutRoute({
   params,
@@ -6,5 +9,6 @@ export default async function CheckoutRoute({
   params: Promise<{ listingId: string }>;
 }) {
   const { listingId } = await params;
-  return <CheckoutPage listingId={listingId} />;
+  const listing = await loadListing(listingId);
+  return <CheckoutPage listing={listing} />;
 }

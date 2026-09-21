@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { SessionProvider } from "@/components/session-provider";
+import { getPublicConfig } from "@/lib/config";
+import { DEMO_USER } from "@/lib/telegram-auth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,6 +29,12 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const config = getPublicConfig();
+  const initialSession = {
+    user: DEMO_USER,
+    mode: config.devBypass ? ("demo" as const) : ("blocked" as const),
+    config,
+  };
   return (
     <html
       lang="tr"
@@ -37,7 +45,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider initialSession={initialSession}>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

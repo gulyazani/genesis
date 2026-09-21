@@ -6,6 +6,8 @@ Nizam Özdemir’in kendi domain ve web sitelerini sattığı Telegram botu + Mi
 
 Yüzey: Telegram Mini App. Dil: Türkçe. Host: kendi VPS (Docker + Caddy).
 
+**Hedef domain:** [https://supershell.click](https://supershell.click) — Mini App ve webhook için. Webhook yolu: `https://supershell.click/api/telegram/webhook`. `setWebhook` henüz çağrılmadı: domain şu an DNS çözülmüyor; VPS + TLS hazır olunca çağır.
+
 ## Local
 
 ```bash
@@ -50,8 +52,8 @@ curl -s -X POST http://127.0.0.1:43127/api/watcher/mock \
 | Değişken | Faz 1 |
 | --- | --- |
 | `BOT_TOKEN` | BotFather. Zorunlu (bot + `initData` HMAC) |
-| `TELEGRAM_ADMIN_ID` | Nizam’ın Telegram `user.id`. Yoksa admin mesajı ve `/paid` yok |
-| `MINI_APP_URL` | Mini App + menü. WebApp tuşu için `https://` |
+| `TELEGRAM_ADMIN_ID` | Nizam’ın Telegram `user.id`. Admin notify + `/paid` `/expire` |
+| `MINI_APP_URL` | Mini App + menü. Hedef: `https://supershell.click` (trailing slash yok) |
 | `CRYPTO_WALLET_ADDRESS` | TRC-20 USDT cüzdan. Yoksa checkout uyarır; mock yine çalışır |
 | `CRYPTO_ASSET` / `CRYPTO_NETWORK` | Varsayılan `USDT` / `TRC-20` |
 | `CRYPTO_WATCH_WINDOW_MIN` | Varsayılan `120` |
@@ -61,13 +63,15 @@ curl -s -X POST http://127.0.0.1:43127/api/watcher/mock \
 
 ## Telegram
 
-1. BotFather’da bot + Menu Button / Web App URL = `https://<domain>/`
-2. Mini App allowlist = aynı HTTPS domain
-3. Webhook (yalnızca public HTTPS olduktan sonra, token’ı loglama):
+Hedef host: **supershell.click**.
+
+1. BotFather’da bot + Menu Button / Web App URL = `https://supershell.click`
+2. Mini App allowlist = `supershell.click`
+3. Webhook yolu (yalnızca VPS’te public HTTPS olduktan sonra; token’ı loglama; şimdilik **çağırma**):
 
 ```bash
 curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/setWebhook" \
-  -d "url=https://<domain>/api/telegram/webhook"
+  -d "url=https://supershell.click/api/telegram/webhook"
 ```
 
 Komutlar: `/start` — Domainler (Mini App), Siparişlerim, Destek.
@@ -78,7 +82,7 @@ Acil yedek (ana yol watcher): `/paid <sipariş-id>`, `/expire <sipariş-id>` —
 
 ```bash
 cp .env.example .env
-# token, admin id, cüzdan, MINI_APP_URL=https://<domain>
+# token, admin id, cüzdan, MINI_APP_URL=https://supershell.click
 # WATCHER_MOCK=0  DEV_BYPASS_TELEGRAM=0
 docker compose up -d --build
 ```

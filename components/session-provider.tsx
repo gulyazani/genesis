@@ -20,10 +20,16 @@ type SessionContextValue = {
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
-export function SessionProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+export function SessionProvider({
+  children,
+  initialSession,
+}: {
+  children: React.ReactNode;
+  initialSession: Session;
+}) {
+  const [session, setSession] = useState<Session | null>(initialSession);
   const [initData, setInitData] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = async () => {

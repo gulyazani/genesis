@@ -3,11 +3,19 @@ import type { PublicConfig } from "@/lib/types";
 
 export const USDT_TRC20_CONTRACT = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 
+function normalizeMiniAppUrl(raw: string) {
+  return raw.trim().replace(/\/+$/, "");
+}
+
 export function getServerConfig() {
+  const miniAppUrl = normalizeMiniAppUrl(
+    process.env.MINI_APP_URL ?? "http://127.0.0.1:43127",
+  );
   return {
     botToken: process.env.BOT_TOKEN ?? "",
     adminId: process.env.TELEGRAM_ADMIN_ID ?? "",
-    miniAppUrl: process.env.MINI_APP_URL ?? "http://127.0.0.1:43127",
+    miniAppUrl,
+    webhookUrl: `${miniAppUrl}/api/telegram/webhook`,
     wallet: (process.env.CRYPTO_WALLET_ADDRESS ?? "").trim(),
     asset: process.env.CRYPTO_ASSET ?? "USDT",
     network: process.env.CRYPTO_NETWORK ?? "TRC-20",

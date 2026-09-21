@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/shell";
 import { Button } from "@/components/ui/button";
-import { apiGet } from "@/lib/api-client";
 import {
   displayUrl,
   formatUsdt,
@@ -15,17 +13,13 @@ import {
 } from "@/lib/format";
 import type { Listing } from "@/lib/types";
 
-export function ListingDetail({ id }: { id: string }) {
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    apiGet<{ listing: Listing }>(`/api/listings/${id}`)
-      .then((data) => setListing(data.listing))
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : "İlan yüklenemedi."),
-      );
-  }, [id]);
+export function ListingDetail({
+  listing,
+  error,
+}: {
+  listing: Listing | null;
+  error?: string | null;
+}) {
 
   return (
     <AppShell title="İLAN">

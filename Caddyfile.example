@@ -1,7 +1,9 @@
-# VPS'te Caddy. Domain'i BotFather Mini App URL ve webhook ile aynı tut.
-# Örnek: caddy run --config Caddyfile
+# VPS'te Caddy. Hedef host: supershell.click
+# BotFather Mini App URL ve webhook ile aynı tut.
+# Webhook: https://supershell.click/api/telegram/webhook
+# setWebhook'i yalnızca bu domain gerçekten bu VPS'e çözülünce çağır.
 
-{$SELLSHELL_DOMAIN:sellshell.example.com} {
+supershell.click {
   encode gzip
   reverse_proxy app:43127
 }

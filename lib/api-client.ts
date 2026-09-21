@@ -3,11 +3,7 @@ export function authHeaders(initData: string): HeadersInit {
   return { "x-telegram-init-data": initData };
 }
 
-export async function apiGet<T>(path: string, initData = "") {
-  const res = await fetch(path, {
-    headers: authHeaders(initData),
-    cache: "no-store",
-  });
+async function parseJson<T>(res: Response) {
   const data = (await res.json()) as T & { error?: string };
   if (!res.ok) {
     throw new Error(data.error || "İstek başarısız.");
@@ -15,8 +11,24 @@ export async function apiGet<T>(path: string, initData = "") {
   return data;
 }
 
+function timedFetch(path: string, init: RequestInit, ms = 12_000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return fetch(path, { ...init, signal: controller.signal }).finally(() =>
+    clearTimeout(timer),
+  );
+}
+
+export async function apiGet<T>(path: string, initData = "") {
+  const res = await timedFetch(path, {
+    headers: authHeaders(initData),
+    cache: "no-store",
+  });
+  return parseJson<T>(res);
+}
+
 export async function apiPost<T>(path: string, body: unknown, initData = "") {
-  const res = await fetch(path, {
+  const res = await timedFetch(path, {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -24,9 +36,5 @@ export async function apiPost<T>(path: string, body: unknown, initData = "") {
     },
     body: JSON.stringify(body),
   });
-  const data = (await res.json()) as T & { error?: string };
-  if (!res.ok) {
-    throw new Error(data.error || "İstek başarısız.");
-  }
-  return data;
+  return parseJson<T>(res);
 }

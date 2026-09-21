@@ -2,32 +2,30 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { CopyButton } from "@/components/copy-button";
 import { AppShell } from "@/components/shell";
 import { useSession } from "@/components/session-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { apiPost } from "@/lib/api-client";
 import { displayUrl, formatUsdt } from "@/lib/format";
 import type { Listing, Order } from "@/lib/types";
 
-export function CheckoutPage({ listingId }: { listingId: string }) {
+export function CheckoutPage({
+  listing: initial,
+}: {
+  listing: Listing | null;
+}) {
   const router = useRouter();
   const { session, initData } = useSession();
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const listing = initial;
+  const [error, setError] = useState<string | null>(
+    initial ? null : "İlan bulunamadı.",
+  );
   const [hint, setHint] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    apiGet<{ listing: Listing }>(`/api/listings/${listingId}`)
-      .then((data) => setListing(data.listing))
-      .catch((err: unknown) =>
-        setError(err instanceof Error ? err.message : "İlan yüklenemedi."),
-      );
-  }, [listingId]);
 
   const wallet = session?.config.wallet ?? "";
   const windowMin = session?.config.watchWindowMin ?? 120;
