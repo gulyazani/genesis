@@ -18,16 +18,22 @@ export async function getListing(id: string) {
   return listings.find((item) => item.id === id) ?? null;
 }
 
+function withLiveWallet(order: Order): Order {
+  return { ...order, walletAddress: getServerConfig().wallet };
+}
+
 export async function getOrder(id: string) {
   const orders = await readOrders();
-  return orders.find((item) => item.id === id) ?? null;
+  const order = orders.find((item) => item.id === id);
+  return order ? withLiveWallet(order) : null;
 }
 
 export async function listOrdersForUser(telegramUserId: string) {
   const orders = await readOrders();
   return orders
     .filter((item) => item.telegramUserId === telegramUserId)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .map(withLiveWallet);
 }
 
 export async function createOrder(input: {
@@ -60,7 +66,7 @@ export async function createOrder(input: {
         amount: listing.price,
         asset: cfg.asset,
         network: cfg.network,
-        walletAddress: cfg.wallet,
+        walletAddress: "",
         txHashHint: hint || undefined,
         status: "pending",
         createdAt: now.toISOString(),
@@ -72,8 +78,9 @@ export async function createOrder(input: {
     },
   );
   if ("error" in created) return created;
-  void notifyOrderCreated(created.order, created.listing);
-  return created;
+  const order = withLiveWallet(created.order);
+  void notifyOrderCreated(order, created.listing);
+  return { order, listing: created.listing };
 }
 
 export async function setOrderHint(orderId: string, telegramUserId: string, hint: string) {

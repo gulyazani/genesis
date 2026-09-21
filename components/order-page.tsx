@@ -130,12 +130,14 @@ export function OrderPage({ id }: { id: string }) {
                 eşleşince sipariş paid olur; Nizam teslimatı yazar.
               </p>
               <p className="mt-3 break-all font-mono text-sm">
-                {order.walletAddress || "Cüzdan henüz ayarlı değil"}
+                {session?.config.wallet ||
+                  order.walletAddress ||
+                  "Cüzdan henüz ayarlı değil"}
               </p>
               <div className="mt-3">
                 <CopyButton
-                  value={order.walletAddress}
-                  disabled={!order.walletAddress}
+                  value={session?.config.wallet || order.walletAddress}
+                  disabled={!session?.config.wallet && !order.walletAddress}
                   label="Adresi kopyala"
                 />
               </div>
