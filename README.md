@@ -90,6 +90,19 @@ curl -s -X POST http://127.0.0.1:43127/api/orders/<id>/deliver \
 | `TRONGRID_API_KEY` | İsteğe. Yoksa public TronGrid (rate limit) |
 | `WATCHER_MOCK` | Local `1`. VPS’te `0` |
 | `DEV_BYPASS_TELEGRAM` | Local `1`. VPS’te `0` |
+| `ADMIN_USER` / `ADMIN_PASSWORD` | Admin panel `/admin`. Şifre yoksa panel kapalı |
+
+## Admin panel
+
+`https://supershell.click/admin` — kullanıcı + şifre. İlan ekle / sil.
+
+Teslim yöntemi (ilan eklerken birini seç):
+
+- **cPanel** — kullanıcı + şifre (+ panel adresi)
+- **WordPress** — kullanıcı + şifre (+ wp-admin)
+- **Tek link** — tek URL
+
+Satın alma bakiyeden `paid` olunca bu bilgiler alıcıya Telegram’dan otomatik gider. Şifreler `data/credentials.json` içinde, katalog API’sine çıkmaz. `/teslim` yedek kalır.
 
 ## Telegram
 

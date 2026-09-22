@@ -1,6 +1,15 @@
 export type ListingType = "domain" | "website";
 export type ListingStatus = "available" | "reserved" | "sold";
 export type ListingTier = "ust" | "orta" | "eko";
+export type DeliveryMethod = "cpanel" | "wordpress" | "link";
+
+export type ListingDelivery = {
+  listingId: string;
+  method: DeliveryMethod;
+  username?: string;
+  password?: string;
+  url?: string;
+};
 
 export type Listing = {
   id: string;
@@ -59,6 +68,17 @@ export type UserRecord = {
 };
 
 export type UsersMap = Record<string, UserRecord>;
+
+export type CredentialsMap = Record<string, ListingDelivery>;
+
+export type AdminListingRow = Listing & {
+  delivery: {
+    method: DeliveryMethod;
+    username?: string;
+    url?: string;
+    hasPassword: boolean;
+  } | null;
+};
 
 export type IncomingTx = {
   id: string;

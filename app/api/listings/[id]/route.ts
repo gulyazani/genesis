@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getListing } from "@/lib/orders";
 import { expireOverdueOrders } from "@/lib/orders";
+import { toPublicListing } from "@/lib/public-listing";
 import { ensureWatcher } from "@/lib/watcher";
 
 export const dynamic = "force-dynamic";
@@ -17,5 +18,5 @@ export async function GET(
   if (!listing) {
     return NextResponse.json({ error: "İlan bulunamadı." }, { status: 404 });
   }
-  return NextResponse.json({ listing });
+  return NextResponse.json({ listing: toPublicListing(listing) });
 }

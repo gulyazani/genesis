@@ -5,10 +5,9 @@ import { gteUsdt, subUsdt } from "@/lib/money";
 import { mutateStore, readListings, readOrders } from "@/lib/store";
 import { creditUser, ensureUserRecord } from "@/lib/users";
 import type { Listing, Order, OrderStatus } from "@/lib/types";
+import { deliverAfterPurchase } from "@/lib/delivery";
 import {
   notifyExpired,
-  notifyPaid,
-  notifyPurchase,
   notifyTopupCreated,
   notifyTopupExpired,
   notifyTopupPaid,
@@ -96,7 +95,9 @@ export async function purchaseFromBalance(input: {
   });
   if ("error" in created) return created;
   bustCatalogCaches(created.listing.id);
-  void notifyPurchase(created.order, created.listing);
+  void deliverAfterPurchase(created.order, created.listing).then((result) => {
+    if (result.auto) return markDelivered(created.order.id);
+  });
   return created;
 }
 
@@ -211,7 +212,13 @@ export async function markOrder(
     }
     if (status === "paid") {
       if (isTopup(result.order)) void notifyTopupPaid(result.order);
-      else if (result.listing) void notifyPaid(result.order, result.listing);
+      else if (result.listing) {
+        void deliverAfterPurchase(result.order, result.listing, "paid").then(
+          (item) => {
+            if (item.auto) return markDelivered(result.order.id);
+          },
+        );
+      }
     }
     if (status === "expired") {
       if (isTopup(result.order)) void notifyTopupExpired(result.order);

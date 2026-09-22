@@ -25,6 +25,8 @@ export function getServerConfig() {
     watcherIntervalMs: Number(process.env.WATCHER_INTERVAL_MS ?? 20_000),
     devBypass: process.env.DEV_BYPASS_TELEGRAM !== "0",
     dataDir: process.env.DATA_DIR || path.join(process.cwd(), "data"),
+    adminUser: process.env.ADMIN_USER?.trim() || "admin",
+    adminPassword: process.env.ADMIN_PASSWORD ?? "",
   };
 }
 
