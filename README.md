@@ -141,7 +141,7 @@ Aynı sunucuda diğer cPanel siteleri **açık kalsın**. Apache’yi / 80’i d
 
 ```bash
 cd ~
-git clone -b cursor/faz1-mini-app-6faf https://github.com/nizam-zdemir/genesis.git sellshell
+git clone -b cursor/faz1-mini-app-6faf https://github.com/gulyazani/genesis.git sellshell
 cd sellshell
 cp .env.example .env
 nano .env   # token, admin id, cüzdan, MINI_APP_URL, WATCHER_MOCK=0, DEV_BYPASS_TELEGRAM=0
