@@ -106,7 +106,15 @@ sh /tmp/webhook.sh
 
 Script `.env` içindeki `BOT_TOKEN`’ı okur, ekrana yazmaz. `ok true` görmelisin. Token boşsa Telegram 404 verir — o yüzden `${BOT_TOKEN}` ile elle curl atma.
 
-`/start` klavye: Domainler · Satışa hazır liste · Siparişlerim · Bakiye yükle.
+`/start` klavye ve slash komutlar Mini App açmadan da çalışır. Telegram menüsünde listelenir:
+
+- `/domainler` — açık domainler
+- `/liste` — satışa hazır
+- `/siparisler` — siparişlerim
+- `/bakiye` — bakiye
+- `/yukle 50` — yükleme başlat (USDT TRC-20)
+- `/al ilan-id` — bakiyeden satın al
+- `/yardim` — komut listesi
 
 Yönetici (yalnızca `TELEGRAM_ADMIN_ID`):
 
