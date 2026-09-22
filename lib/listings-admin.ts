@@ -56,11 +56,19 @@ export async function createAdminListing(input: {
   username?: string;
   password?: string;
   loginUrl?: string;
+  authorityScore: number;
 }) {
   const title = input.title.trim();
   if (!title) return { error: "Domain / site adı yaz." };
   if (!Number.isFinite(input.price) || input.price < 1) {
     return { error: "Fiyat en az 1 USDT olsun." };
+  }
+  if (
+    !Number.isFinite(input.authorityScore) ||
+    input.authorityScore < 0 ||
+    input.authorityScore > 100
+  ) {
+    return { error: "Authority score 0–100 arası olsun." };
   }
   if (input.method === "link") {
     const link = (input.loginUrl || input.url || "").trim();
@@ -91,6 +99,7 @@ export async function createAdminListing(input: {
       highlights: [methodLabel(input.method), "Otomatik teslimat"],
       registeredAt: now,
       deliveryNote: "Ödeme sonrası bilgiler Telegram'dan otomatik iletilir.",
+      authorityScore: Math.round(input.authorityScore),
     };
     const delivery: ListingDelivery = {
       listingId: id,

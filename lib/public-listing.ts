@@ -17,6 +17,7 @@ const PUBLIC_KEYS = [
   "registeredAt",
   "deliveryNote",
   "pageCount",
+  "authorityScore",
 ] as const;
 
 export function toPublicListing(listing: Listing): Listing {

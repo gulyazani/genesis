@@ -18,7 +18,8 @@
     "registrar": "Namecheap",
     "registeredAt": "2019-03-18",
     "expiresAt": "2027-03-18",
-    "deliveryNote": "Ödeme eşleşince auth-code ve registrar transfer adımları sohbette."
+    "deliveryNote": "Ödeme eşleşince auth-code ve registrar transfer adımları sohbette.",
+    "authorityScore": 28
   },
   {
     "id": "mutfakrehberi-com",
@@ -37,7 +38,8 @@
       "Zip ve git teslim"
     ],
     "pageCount": 42,
-    "deliveryNote": "Ödeme sonrası zip, git erişimi ve DNS kesim notu Telegram'dan."
+    "deliveryNote": "Ödeme sonrası zip, git erişimi ve DNS kesim notu Telegram'dan.",
+    "authorityScore": 41
   },
   {
     "id": "istanbulajans-net",
@@ -50,10 +52,13 @@
     "tier": "orta",
     "summary": "İstanbul odaklı ajans adı — satıldı.",
     "description": "Bu domain satıldı. Katalogda referans olarak duruyor; checkout kapalı.",
-    "highlights": ["Satış tamamlandı"],
+    "highlights": [
+      "Satış tamamlandı"
+    ],
     "registrar": "Google Domains / Squarespace",
     "registeredAt": "2021-08-02",
-    "expiresAt": "2026-08-02"
+    "expiresAt": "2026-08-02",
+    "authorityScore": 22
   },
   {
     "id": "kucukisletme-co",
@@ -74,7 +79,8 @@
     "registrar": "Porkbun",
     "registeredAt": "2023-01-11",
     "expiresAt": "2027-01-11",
-    "deliveryNote": "Auth-code aynı gün, ödeme görünce."
+    "deliveryNote": "Auth-code aynı gün, ödeme görünce.",
+    "authorityScore": 12
   },
   {
     "id": "atolyeden-com",
@@ -93,6 +99,7 @@
       "Zip teslim"
     ],
     "pageCount": 18,
-    "deliveryNote": "Domain auth-code ve site zip'i aynı sohbette."
+    "deliveryNote": "Domain auth-code ve site zip'i aynı sohbette.",
+    "authorityScore": 33
   }
 ]

@@ -96,6 +96,8 @@ curl -s -X POST http://127.0.0.1:43127/api/orders/<id>/deliver \
 
 `https://supershell.click/admin` — kullanıcı + şifre. İlan ekle / sil.
 
+İlan eklerken **authority score** (0–100) yazılır; katalog ve bot listesinde görünür.
+
 Teslim yöntemi (ilan eklerken birini seç):
 
 - **cPanel** — kullanıcı + şifre (+ panel adresi)

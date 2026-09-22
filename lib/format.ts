@@ -18,6 +18,14 @@ export function yearsSince(iso?: string) {
 }
 
 export function listingMetric(listing: Listing) {
+  if (typeof listing.authorityScore === "number") {
+    const score = Math.max(0, Math.min(100, listing.authorityScore));
+    return {
+      label: "AUTHORITY",
+      value: score,
+      fill: score,
+    };
+  }
   if (listing.type === "website") {
     const pages = listing.pageCount ?? 0;
     return {

@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     username?: string;
     password?: string;
     loginUrl?: string;
+    authorityScore?: number;
   };
   try {
     body = (await req.json()) as typeof body;
@@ -48,6 +49,7 @@ export async function POST(req: Request) {
     username: body.username,
     password: body.password,
     loginUrl: body.loginUrl,
+    authorityScore: Number(body.authorityScore),
   });
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 400 });

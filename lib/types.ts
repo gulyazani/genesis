@@ -28,6 +28,7 @@ export type Listing = {
   registeredAt?: string;
   deliveryNote?: string;
   pageCount?: number;
+  authorityScore?: number;
 };
 
 export type OrderStatus =

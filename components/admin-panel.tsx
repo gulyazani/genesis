@@ -38,6 +38,7 @@ export function AdminPanel() {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [price, setPrice] = useState("100");
+  const [authorityScore, setAuthorityScore] = useState("");
   const [type, setType] = useState<ListingType>("domain");
   const [method, setMethod] = useState<DeliveryMethod>("cpanel");
   const [username, setUsername] = useState("");
@@ -77,6 +78,7 @@ export function AdminPanel() {
           title,
           url,
           price: Number(price.replace(",", ".")),
+          authorityScore: Number(authorityScore.replace(",", ".")),
           type,
           method,
           username,
@@ -92,6 +94,7 @@ export function AdminPanel() {
       }
       setTitle("");
       setUrl("");
+      setAuthorityScore("");
       setUsername("");
       setPassword("");
       setLoginUrl("");
@@ -157,6 +160,19 @@ export function AdminPanel() {
               value={price}
               onChange={(event) => setPrice(event.target.value)}
               inputMode="decimal"
+              className="h-11 rounded-xl border-white/8 bg-black/30"
+              required
+            />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs text-white/45">
+              Authority score (0–100)
+            </label>
+            <Input
+              value={authorityScore}
+              onChange={(event) => setAuthorityScore(event.target.value)}
+              inputMode="numeric"
+              placeholder="42"
               className="h-11 rounded-xl border-white/8 bg-black/30"
               required
             />
@@ -281,7 +297,8 @@ export function AdminPanel() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{item.title}</p>
                   <p className="mt-1 text-sm text-white/45">
-                    {formatUsdt(item.price)} · {statusLabel(item.status)} ·{" "}
+                    {formatUsdt(item.price)} · AS{" "}
+                    {item.authorityScore ?? "—"} · {statusLabel(item.status)} ·{" "}
                     {item.delivery ? methodName(item.delivery.method) : "teslimat yok"}
                   </p>
                 </div>

@@ -82,7 +82,9 @@ function replyKeyboard() {
 function formatListingLine(item: Listing) {
   const buy =
     item.status === "available" ? `\n  Satın al: /al ${item.id}` : "";
-  return `• <b>${escapeHtml(item.title)}</b> — ${formatUsdt(item.price)}\n  ${statusLabel(item.status)}${buy}`;
+  const as =
+    typeof item.authorityScore === "number" ? ` · AS ${item.authorityScore}` : "";
+  return `• <b>${escapeHtml(item.title)}</b> — ${formatUsdt(item.price)}\n  ${statusLabel(item.status)}${as}${buy}`;
 }
 
 async function replyDomainler(ctx: Context) {
