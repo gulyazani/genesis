@@ -5,9 +5,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function StockPage() {
-  const listings = (await loadCatalog()).filter(
-    (item) => item.status === "available",
-  );
+  const listings = await loadCatalog();
   return (
     <CatalogPage listings={listings} variant="ready" title="SATIŞA HAZIR" />
   );

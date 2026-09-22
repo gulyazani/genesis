@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function Home() {
-  const listings = (await loadCatalog()).filter((item) => item.type === "domain");
+  const listings = await loadCatalog();
   return (
     <CatalogPage listings={listings} variant="domains" title="DOMAINLER" />
   );

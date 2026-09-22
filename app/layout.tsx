@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import { SessionProvider } from "@/components/session-provider";
 import { getPublicConfig } from "@/lib/config";
 import { DEMO_USER } from "@/lib/telegram-auth";
@@ -41,11 +40,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="tr"
       className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Native head script — next/script + React 19 client nav /stock'u kırıyordu */}
+        <script src="https://telegram.org/js/telegram-web-app.js" async />
+      </head>
       <body className="min-h-full bg-background text-foreground">
-        <Script
-          src="https://telegram.org/js/telegram-web-app.js"
-          strategy="beforeInteractive"
-        />
         <SessionProvider initialSession={initialSession}>
           {children}
         </SessionProvider>

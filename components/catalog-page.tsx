@@ -18,17 +18,15 @@ export function CatalogPage({
   const [items, setItems] = useState(listings);
 
   useEffect(() => {
-    setItems(listings);
-  }, [listings]);
-
-  useEffect(() => {
     let cancelled = false;
     async function pull() {
       try {
         const data = await apiGet<{ listings: Listing[] }>("/api/listings");
-        if (!cancelled) setItems(data.listings);
+        if (!cancelled && Array.isArray(data.listings)) {
+          setItems(data.listings);
+        }
       } catch {
-        /* SSR listesi kalsın */
+        if (!cancelled) setItems(listings);
       }
     }
     void pull();
@@ -42,7 +40,7 @@ export function CatalogPage({
       window.removeEventListener("focus", pull);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, []);
+  }, [listings]);
 
   return (
     <AppShell title={title}>
