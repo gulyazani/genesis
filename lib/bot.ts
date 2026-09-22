@@ -33,27 +33,28 @@ function escapeHtml(value: string) {
 
 function welcomeText() {
   return [
-    "<b>Hoş geldiniz.</b>",
+    "🔥 <b>SUPERSHELL SHOP</b> 🔥",
     "",
-    "supershell — domain ve web siteleri.",
-    "Komutlar Mini App açmadan da çalışır.",
+    "🌐 Domainler — /domainler",
+    "🖥️ Satışa hazır siteler — /liste",
+    "📦 Siparişlerim — /siparisler",
+    "💳 Bakiye yükle — /bakiye",
     "",
-    "/domainler — domainler",
-    "/liste — satışa hazır",
-    "/siparisler — siparişlerim",
-    "/bakiye — bakiye gör / yükle",
+    "✅ Bakiyeden al · Teslimat sohbetten · 7/24 destek",
+    "💰 USDT / TRX (TRC-20) — bakiyen: /bakiye",
+    "🛒 Satın al: /al ilan-id   ·   Yükle: /yukle 50",
   ].join("\n");
 }
 
 function userHelpText() {
   return [
-    "<b>Komutlar</b>",
-    "/start — hoş geldiniz",
+    "🔥 <b>SUPERSHELL</b> — komutlar",
+    "",
     "/domainler — açık domainler",
-    "/liste — satışa hazır ilanlar",
+    "/liste — satışa hazır siteler",
     "/siparisler — siparişlerin",
-    "/bakiye — bakiyen",
-    "/yukle 50 — 50 USDT yükleme başlat",
+    "/bakiye — bakiye + cüzdan",
+    "/yukle 50 — USDT TRC-20 yükle",
     "/al ilan-id — bakiyeden satın al",
     "/yardim — bu liste",
   ].join("\n");
