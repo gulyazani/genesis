@@ -6,7 +6,7 @@ Nizam Özdemir’in kendi domain ve web sitelerini sattığı Telegram botu + Mi
 
 Yüzey kilitli: **Domainler** · **Satışa hazır liste** · **Siparişlerim** · **Bakiye yükle**. Dil: Türkçe. Host: kendi VPS (Docker + Caddy). Giriş yok — `initData`.
 
-**Hedef domain:** [https://supershell.click](https://supershell.click) — Mini App ve webhook için. Webhook yolu: `https://supershell.click/api/telegram/webhook`. Cloudflare DNS + HTTPS hazır; origin’de sertifika yok (CF Flexible). `setWebhook` yalnızca site sellshell döndürünce — şu an origin hâlâ varsayılan hosting sayfası.
+**Hedef domain:** [https://supershell.click](https://supershell.click) — Mini App ve webhook için. Webhook yolu: `https://supershell.click/api/telegram/webhook`. Cloudflare Flexible. Health: `{"service":"sellshell"}`. Webhook’u `scripts/set-webhook.sh` ile kur (token’ı sohbete yapıştırma).
 
 ## Akış
 
@@ -97,12 +97,15 @@ Hedef host: **supershell.click**.
 
 1. BotFather’da bot + Menu Button / Web App URL = `https://supershell.click`
 2. Mini App allowlist = `supershell.click`
-3. Webhook (yalnızca `https://supershell.click/api/health` → `{"service":"sellshell"}` olduktan sonra; token’ı loglama; henüz **çağırma**):
+3. Webhook — token’ı sohbete veya `curl` satırına yazma. Site `{"service":"sellshell"}` dönüyorsa sunucuda:
 
 ```bash
-curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/setWebhook" \
-  -d "url=https://supershell.click/api/telegram/webhook"
+cd ~/sellshell
+git pull
+sh scripts/set-webhook.sh
 ```
+
+Script `.env` içindeki `BOT_TOKEN`’ı okur, ekrana yazmaz. `ok true` görmelisin. Token boşsa Telegram 404 verir — o yüzden `${BOT_TOKEN}` ile elle curl atma.
 
 `/start` klavye: Domainler · Satışa hazır liste · Siparişlerim · Bakiye yükle.
 
