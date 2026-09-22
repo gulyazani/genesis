@@ -70,11 +70,11 @@ function buyerName(ctx: Context) {
 
 function replyKeyboard() {
   return new Keyboard()
-    .text("Domainler")
-    .text("Satışa hazır liste")
+    .text("🌐 Domainler")
+    .text("🖥️ Satışa hazır")
     .row()
-    .text("Siparişlerim")
-    .text("Bakiye yükle")
+    .text("📦 Siparişlerim")
+    .text("💳 Bakiye")
     .resized()
     .persistent();
 }
@@ -230,7 +230,7 @@ async function replyAl(ctx: Context) {
 }
 
 const PUBLIC_COMMANDS = [
-  { command: "start", description: "Hoş geldiniz" },
+  { command: "start", description: "SUPERSHELL SHOP" },
   { command: "domainler", description: "Domain ilanları" },
   { command: "liste", description: "Satışa hazır liste" },
   { command: "siparisler", description: "Siparişlerim" },
@@ -304,10 +304,10 @@ export function getBot() {
     await ctx.reply(userHelpText(), { parse_mode: "HTML" });
   });
 
-  bot.hears("Domainler", replyDomainler);
-  bot.hears("Satışa hazır liste", replyListe);
-  bot.hears("Siparişlerim", replySiparisler);
-  bot.hears("Bakiye yükle", replyBakiye);
+  bot.hears(/Domainler/, replyDomainler);
+  bot.hears(/Satışa hazır/, replyListe);
+  bot.hears(/Siparişlerim/, replySiparisler);
+  bot.hears(/Bakiye/, replyBakiye);
 
   bot.command("paid", async (ctx) => {
     if (!ctx.from || !isAdmin(ctx.from.id)) {

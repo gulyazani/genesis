@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, Globe, ListChecks, Wallet } from "lucide-react";
 
 const ITEMS = [
-  { href: "/", label: "Domainler", icon: Globe },
-  { href: "/stock", label: "Satışa hazır", icon: ListChecks },
-  { href: "/orders", label: "Siparişlerim", icon: ClipboardList },
-  { href: "/balance", label: "Bakiye yükle", icon: Wallet },
+  { href: "/", label: "Domainler", image: "/icons/domainler.svg" },
+  { href: "/stock", label: "Satışa hazır", image: "/icons/liste.svg" },
+  { href: "/orders", label: "Siparişlerim", image: "/icons/siparisler.svg" },
+  { href: "/balance", label: "Bakiye yükle", image: "/icons/bakiye.svg" },
 ] as const;
 
 export function AppNav() {
@@ -22,7 +21,6 @@ export function AppNav() {
             item.href === "/"
               ? pathname === "/"
               : pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const Icon = item.icon;
           return (
             <li key={item.href}>
               <Link
@@ -31,7 +29,13 @@ export function AppNav() {
                   active ? "bg-white/8 text-white" : "text-white/45"
                 }`}
               >
-                <Icon className="size-4" />
+                <img
+                  src={item.image}
+                  alt=""
+                  width={28}
+                  height={28}
+                  className={`size-7 rounded-lg ${active ? "opacity-100" : "opacity-70"}`}
+                />
                 {item.label}
               </Link>
             </li>
