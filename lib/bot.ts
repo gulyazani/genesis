@@ -273,21 +273,28 @@ export function getBot() {
       });
   }
 
-  if (miniAppUrl.startsWith("https://")) {
-    void bot.api
-      .setChatMenuButton({
-        menu_button: {
-          type: "web_app",
-          text: "Mini App",
-          web_app: { url: appPath(miniAppUrl, "/") },
-        },
-      })
-      .catch(() => {
-        console.info("menu button skipped");
-      });
+  async function applyMiniAppButton(chatId?: number) {
+    if (!miniAppUrl.startsWith("https://")) return;
+    await bot.api.setChatMenuButton({
+      ...(chatId ? { chat_id: chatId } : {}),
+      menu_button: {
+        type: "web_app",
+        text: "MiniApp",
+        web_app: { url: appPath(miniAppUrl, "/") },
+      },
+    });
   }
 
+  void applyMiniAppButton().catch(() => {
+    console.info("menu button skipped");
+  });
+
   bot.command("start", async (ctx) => {
+    if (ctx.chat) {
+      await applyMiniAppButton(ctx.chat.id).catch(() => {
+        console.info("menu button skipped");
+      });
+    }
     await ctx.reply(welcomeText(), {
       parse_mode: "HTML",
       reply_markup: replyKeyboard(),
