@@ -8,12 +8,22 @@ services:
       WATCHER_MOCK: ${WATCHER_MOCK:-0}
       DEV_BYPASS_TELEGRAM: ${DEV_BYPASS_TELEGRAM:-0}
       PORT: 43127
-    ports:
-      - "43127:43127"
+    expose:
+      - "43127"
     volumes:
       - sellshell-data:/app/data
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - app
 
 volumes:
   sellshell-data:

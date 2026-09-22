@@ -6,7 +6,7 @@ Nizam Özdemir’in kendi domain ve web sitelerini sattığı Telegram botu + Mi
 
 Yüzey kilitli: **Domainler** · **Satışa hazır liste** · **Siparişlerim** · **Bakiye yükle**. Dil: Türkçe. Host: kendi VPS (Docker + Caddy). Giriş yok — `initData`.
 
-**Hedef domain:** [https://supershell.click](https://supershell.click) — Mini App ve webhook için. Webhook yolu: `https://supershell.click/api/telegram/webhook`. `setWebhook` henüz çağrılmadı: domain şu an DNS çözülmüyor; VPS + TLS hazır olunca çağır.
+**Hedef domain:** [https://supershell.click](https://supershell.click) — Mini App ve webhook için. Webhook yolu: `https://supershell.click/api/telegram/webhook`. Cloudflare DNS + HTTPS hazır; origin’de sertifika yok (CF Flexible). `setWebhook` yalnızca site sellshell döndürünce — şu an origin hâlâ varsayılan hosting sayfası.
 
 ## Akış
 
@@ -97,7 +97,7 @@ Hedef host: **supershell.click**.
 
 1. BotFather’da bot + Menu Button / Web App URL = `https://supershell.click`
 2. Mini App allowlist = `supershell.click`
-3. Webhook yolu (yalnızca VPS’te public HTTPS olduktan sonra; token’ı loglama; şimdilik **çağırma**):
+3. Webhook (yalnızca `https://supershell.click/api/health` → `{"service":"sellshell"}` olduktan sonra; token’ı loglama; henüz **çağırma**):
 
 ```bash
 curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/setWebhook" \
@@ -113,18 +113,42 @@ Yönetici (yalnızca `TELEGRAM_ADMIN_ID`):
 - `/teslim <sipariş-id> kullanıcı şifre panel` — giriş bilgilerini alıcıya ilet (diske yazılmaz)
 - `/help` — kısa hatırlatma
 
-## VPS (Docker + Caddy)
+## VPS + Cloudflare (origin SSL yok)
+
+Ziyaretçi ve Telegram **HTTPS** görür; sertifikayı Cloudflare verir. VPS’te Let’s Encrypt / Caddy TLS **kurma**.
+
+Cloudflare:
+
+1. DNS `A` (veya `AAAA`) `supershell.click` → VPS IP, **Proxied** (turuncu bulut).
+2. SSL/TLS → **Flexible**. Full / Full (strict) origin sertifikası ister; atladıysan 525/500 olur.
+3. Always Use HTTPS: açık.
+4. Bot Fight Mode kapalı (Telegram webhook POST’unu keser).
+5. Origin :80’de **sellshell** olmalı. Şu an `defaultwebpage.cgi` (cPanel varsayılanı) duruyorsa Apache/httpd’yi durdur veya vhost’u kapat; 80 Caddy’nin.
 
 ```bash
+# 80’i tutan eski panel
+sudo systemctl stop apache2 httpd nginx 2>/dev/null || true
+
 cp .env.example .env
-# token, admin id, cüzdan, MINI_APP_URL=https://supershell.click
-# WATCHER_MOCK=0  DEV_BYPASS_TELEGRAM=0
+# BOT_TOKEN TELEGRAM_ADMIN_ID CRYPTO_WALLET_ADDRESS
+# MINI_APP_URL=https://supershell.click
+# WATCHER_MOCK=0
+# DEV_BYPASS_TELEGRAM=0
 docker compose up -d --build
 ```
 
-Caddy örneği: `Caddyfile.example`. App `43127` dinler. `data/listings.json`, `data/orders.json`, `data/users.json` volume’da yazılır.
+Kanıt (sellshell olmadan `setWebhook` yok):
 
-pm2 alternatifi: `npm run build && npm start` — aynı port, aynı env, Caddy `reverse_proxy 127.0.0.1:43127`.
+```bash
+curl -s http://127.0.0.1/api/health
+# {"ok":true,"service":"sellshell",...}
+
+curl -s https://supershell.click/api/health
+```
+
+Caddy `auto_https off`, yalnızca `:80` → `app:43127`. Host Caddy + pm2: `Caddyfile.example` (`127.0.0.1:43127`).
+
+43127’yi internete açma; Cloudflare yalnızca 80’e gelsin.
 
 ## Veri
 

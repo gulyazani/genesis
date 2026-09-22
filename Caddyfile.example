@@ -1,9 +1,17 @@
-# VPS'te Caddy. Hedef host: supershell.click
-# BotFather Mini App URL ve webhook ile aynı tut.
-# Webhook: https://supershell.click/api/telegram/webhook
-# setWebhook'i yalnızca bu domain gerçekten bu VPS'e çözülünce çağır.
+# Cloudflare origin — VPS'te Let's Encrypt / Caddy TLS YOK.
+# Ziyaretçi → CF (HTTPS) → bu makine :80 (HTTP) → Next 43127.
+# CF SSL/TLS: Flexible. Full / Full (strict) kullanma; origin sertifikası yok.
+#
+# Docker Compose bu dosyayı Caddyfile olarak kullanır (reverse_proxy app:43127).
+# Host Caddy + pm2 için aşağıdaki bloğu 127.0.0.1:43127 ile kopyala.
+#
+# setWebhook yalnızca https://supershell.click sellshell döndürünce.
 
-supershell.click {
-  encode gzip
-  reverse_proxy app:43127
+{
+	auto_https off
+}
+
+:80 {
+	encode gzip
+	reverse_proxy 127.0.0.1:43127
 }
