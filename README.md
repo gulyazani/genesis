@@ -102,7 +102,7 @@ Hedef host: **supershell.click**.
 ```bash
 cd ~/sellshell
 git pull
-sh scripts/set-webhook.sh
+sh webhook.sh
 ```
 
 Script `.env` içindeki `BOT_TOKEN`’ı okur, ekrana yazmaz. `ok true` görmelisin. Token boşsa Telegram 404 verir — o yüzden `${BOT_TOKEN}` ile elle curl atma.
