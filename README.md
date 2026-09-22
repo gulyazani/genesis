@@ -113,6 +113,16 @@ Yönetici (yalnızca `TELEGRAM_ADMIN_ID`):
 - `/teslim <sipariş-id> kullanıcı şifre panel` — giriş bilgilerini alıcıya ilet (diske yazılmaz)
 - `/help` — kısa hatırlatma
 
+## Sırada (cPanel’e zip atma)
+
+Bu bir Next.js + bot süreci. cPanel File Manager / `public_html` **çalışmaz**. `index.html` yok; `docker compose` (veya SSH + Node) lazım.
+
+1. SSH ile VPS’e gir (kök veya sudo).
+2. Cloudflare SSL/TLS = **Flexible**. Full değil.
+3. 80’i tutan cPanel/Apache’yi durdur — yoksa `defaultwebpage.cgi` kalır.
+4. Repoyu sunucuya çek, `.env` doldur, `docker compose up -d --build`.
+5. `https://supershell.click/api/health` → `sellshell` görünce BotFather + `setWebhook`.
+
 ## VPS + Cloudflare (origin SSL yok)
 
 Ziyaretçi ve Telegram **HTTPS** görür; sertifikayı Cloudflare verir. VPS’te Let’s Encrypt / Caddy TLS **kurma**.
