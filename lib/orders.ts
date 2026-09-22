@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { bustCatalogCaches } from "@/lib/catalog-cache";
 import { getServerConfig } from "@/lib/config";
 import { gteUsdt, subUsdt } from "@/lib/money";
 import { mutateStore, readListings, readOrders } from "@/lib/store";
@@ -94,6 +95,7 @@ export async function purchaseFromBalance(input: {
     return { order, listing: { ...listing }, balanceUsdt: user.balanceUsdt };
   });
   if ("error" in created) return created;
+  bustCatalogCaches(created.listing.id);
   void notifyPurchase(created.order, created.listing);
   return created;
 }
@@ -192,7 +194,7 @@ export async function markOrder(
       if (isTopup(order)) {
         creditUser(users, order.telegramUserId, order.amount);
         if (!order.note) order.note = "Nizam bakiye onayı";
-      } else if (listing) {
+      } else if (listing && listing.status !== "sold") {
         listing.status = "sold";
       }
     } else {
@@ -204,6 +206,9 @@ export async function markOrder(
   });
   if ("error" in result) return result;
   if (!result.unchanged) {
+    if (status === "paid" && result.listing) {
+      bustCatalogCaches(result.listing.id);
+    }
     if (status === "paid") {
       if (isTopup(result.order)) void notifyTopupPaid(result.order);
       else if (result.listing) void notifyPaid(result.order, result.listing);

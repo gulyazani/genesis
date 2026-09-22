@@ -1,3 +1,4 @@
+import { bustCatalogCaches } from "@/lib/catalog-cache";
 import { getServerConfig, USDT_TRC20_CONTRACT } from "@/lib/config";
 import { expireOverdueOrders } from "@/lib/orders";
 import {
@@ -225,7 +226,10 @@ export async function applyIncomingTx(tx: IncomingTx) {
     void notifyTopupAwaitingAdmin(result.order);
   }
   if (result.outcome === "paid" && result.order) {
-    if (result.listing) void notifyPaid(result.order, result.listing);
+    if (result.listing) {
+      bustCatalogCaches(result.listing.id);
+      void notifyPaid(result.order, result.listing);
+    }
     if (result.collision) {
       void notifyAdmin(
         `<b>Aynı tutarda birden fazla bekleyen</b>\n${tx.amount} USDT TX <code>${tx.id}</code> en eski siparişe bağlandı: <code>${result.order.id}</code>`,

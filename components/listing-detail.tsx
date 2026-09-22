@@ -93,7 +93,7 @@ export function ListingDetail({
             ) : listing.status === "reserved" ? (
               <p className="text-sm text-amber-200">Ödeme bekleniyor — checkout kapalı.</p>
             ) : (
-              <p className="text-sm text-white/45">Satıldı — checkout yok.</p>
+              <p className="text-sm text-white/45">Satıldı — stokta yok.</p>
             )}
           </div>
         </article>

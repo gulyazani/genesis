@@ -163,6 +163,7 @@ export async function notifyPurchase(order: Order, listing: Listing) {
     [
       `<b>Satın alındı</b> — ${listing.title}`,
       `${formatUsdt(order.amount)} bakiyeden düşüldü.`,
+      "İlan stoktan düştü — Satışa hazır listede durmaz.",
       "Nizam site / domain giriş bilgilerini bu sohbetten iletecek.",
     ].join("\n"),
   );
@@ -172,6 +173,7 @@ export async function notifyPurchase(order: Order, listing: Listing) {
       `${listing.title} · ${formatUsdt(order.amount)}`,
       `Alıcı: <code>${order.telegramUserId}</code>`,
       `Sipariş: <code>${order.id}</code>`,
+      "İlan stoktan düştü (sold).",
       `Giriş bilgisi için: /teslim ${order.id} kullanıcı şifre...`,
     ].join("\n"),
   );

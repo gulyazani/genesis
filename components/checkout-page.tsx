@@ -39,6 +39,7 @@ export function CheckoutPage({
         initData,
       );
       await refresh();
+      router.refresh();
       router.push(`/orders/${result.order.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Satın alınamadı.");

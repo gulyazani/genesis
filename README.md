@@ -13,7 +13,7 @@ Yüzey kilitli: **Domainler** · **Satışa hazır liste** · **Siparişlerim** 
 1. Alıcı **Bakiye yükle** — tutar + Nizam’ın cüzdanı. Order `kind=topup` `pending`.
 2. Watcher eşleşince `awaiting_admin` — bakiye **yazılmaz**. Nizam’a `/paid ord_...` gider.
 3. Nizam `/paid` → `paid` + `balanceUsdt` artar. Red: `/expire`.
-4. Alıcı Domainler / Satışa hazır listeden **bakiyeden satın al** — listing `sold`, order hemen `paid`.
+4. Alıcı Domainler / Satışa hazır listeden **bakiyeden satın al** — listing `sold`, stoktan düşer, order hemen `paid`. Satışa hazır listede durmaz.
 5. Nizam `/teslim ord_... kullanıcı şifre panel` — metin alıcıya iletilir, `deliveredAt` işaretlenir. Şifre diske yazılmaz.
 
 ## Local

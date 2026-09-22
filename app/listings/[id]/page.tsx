@@ -2,6 +2,7 @@ import { ListingDetail } from "@/components/listing-detail";
 import { loadListing } from "@/lib/catalog-data";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function ListingPage({
   params,

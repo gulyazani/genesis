@@ -185,8 +185,8 @@ export function OrderPage({ id }: { id: string }) {
               {order.kind === "topup"
                 ? "Nizam onayladı — bakiye işlendi."
                 : order.deliveredAt
-                  ? "Satın alındı. Giriş bilgileri Telegram’dan iletildi."
-                  : "Satın alındı. Nizam site / domain girişini Telegram’dan /teslim ile yollar."}
+                  ? "Satın alındı. İlan stoktan düştü. Giriş bilgileri Telegram’dan iletildi."
+                  : "Satın alındı. İlan stoktan düştü. Nizam site / domain girişini Telegram’dan /teslim ile yollar."}
             </section>
           ) : null}
 
