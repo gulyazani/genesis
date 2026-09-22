@@ -57,7 +57,7 @@ export function paidBuyerText(order: Order, listing: Listing) {
     `<b>Ödeme görüldü</b> — ${listing.title}`,
     `${formatUsdt(order.amount)} ${order.asset} alındı.`,
     order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
-    "Nizam teslimatı bu sohbetten yazacak.",
+    "Nizam giriş bilgilerini bu sohbetten /teslim ile yollayacak.",
   ]
     .filter(Boolean)
     .join("\n");
@@ -69,7 +69,7 @@ export function paidAdminText(order: Order, listing: Listing) {
     `${listing.title} · ${formatUsdt(order.amount)}`,
     `Alıcı: <code>${order.telegramUserId}</code>`,
     order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
-    "Teslimatı (auth-code / zip) alıcıya yaz.",
+    `Giriş bilgisi için: /teslim ${order.id} kullanıcı şifre...`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -163,7 +163,7 @@ export async function notifyPurchase(order: Order, listing: Listing) {
     [
       `<b>Satın alındı</b> — ${listing.title}`,
       `${formatUsdt(order.amount)} bakiyeden düşüldü.`,
-      "Nizam teslimatı bu sohbetten yazacak.",
+      "Nizam site / domain giriş bilgilerini bu sohbetten iletecek.",
     ].join("\n"),
   );
   await notifyAdmin(
@@ -172,7 +172,7 @@ export async function notifyPurchase(order: Order, listing: Listing) {
       `${listing.title} · ${formatUsdt(order.amount)}`,
       `Alıcı: <code>${order.telegramUserId}</code>`,
       `Sipariş: <code>${order.id}</code>`,
-      "Teslimatı (auth-code / zip) alıcıya yaz.",
+      `Giriş bilgisi için: /teslim ${order.id} kullanıcı şifre...`,
     ].join("\n"),
   );
 }
@@ -185,7 +185,7 @@ export async function notifyTopupCreated(order: Order) {
       `<b>Bakiye yükleme</b>`,
       `${formatUsdt(order.amount)} · ${order.network} ${order.asset}`,
       cfg.wallet ? `Cüzdan: <code>${cfg.wallet}</code>` : "Cüzdan henüz ayarlı değil.",
-      `Pencere: ${cfg.watchWindowMin} dk. Yanlış ağ/token eşleşmez.`,
+      `Pencere: ${cfg.watchWindowMin} dk. TX görünce Nizam bakiyeyi onaylar.`,
       `Sipariş: <code>${order.id}</code>`,
     ].join("\n"),
   );
@@ -196,6 +196,29 @@ export async function notifyTopupCreated(order: Order) {
       `Alıcı: <code>${order.telegramUserId}</code> ${order.telegramName ?? ""}`,
       `Sipariş: <code>${order.id}</code>`,
     ].join("\n"),
+  );
+}
+
+export async function notifyTopupAwaitingAdmin(order: Order) {
+  await sendTelegramMessage(
+    order.telegramUserId,
+    [
+      `<b>Transfer görüldü</b>`,
+      `${formatUsdt(order.amount)} — Nizam onaylayınca bakiyen işlenir.`,
+      `Sipariş: <code>${order.id}</code>`,
+    ].join("\n"),
+  );
+  await notifyAdmin(
+    [
+      `<b>Bakiye onayı</b>`,
+      `${formatUsdt(order.amount)} TX görüldü. Bakiye henüz yazılmadı.`,
+      `Alıcı: <code>${order.telegramUserId}</code>`,
+      order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
+      `Onayla: /paid ${order.id}`,
+      `Reddet: /expire ${order.id}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
   );
 }
 
@@ -217,6 +240,29 @@ export async function notifyTopupPaid(order: Order) {
       `Alıcı: <code>${order.telegramUserId}</code>`,
       order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
       `Sipariş: <code>${order.id}</code>`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
+}
+
+export async function notifyDelivery(
+  order: Order,
+  listingTitle: string | undefined,
+  body: string,
+) {
+  const safe = body
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  await sendTelegramMessage(
+    order.telegramUserId,
+    [
+      `<b>Teslimat — giriş bilgileri</b>`,
+      listingTitle ? listingTitle : "",
+      `Sipariş: <code>${order.id}</code>`,
+      "",
+      `<pre>${safe}</pre>`,
     ]
       .filter(Boolean)
       .join("\n"),

@@ -4,14 +4,13 @@ import {
   lateTxAdminText,
   notifyAdmin,
   notifyPaid,
-  notifyTopupPaid,
+  notifyTopupAwaitingAdmin,
   notifyUnderpaid,
   sendTelegramMessage,
   wrongAssetText,
 } from "@/lib/notify";
 import { isTopup } from "@/lib/orders";
 import { mutateStore } from "@/lib/store";
-import { creditUser } from "@/lib/users";
 import type { IncomingTx, Listing, Order } from "@/lib/types";
 
 const mockPool: IncomingTx[] = [];
@@ -140,11 +139,11 @@ export async function applyIncomingTx(tx: IncomingTx) {
   }
 
   const result = await mutateStore<{
-    outcome: "paid" | "underpaid" | "late" | "unmatched" | "seen";
+    outcome: "paid" | "awaiting_admin" | "underpaid" | "late" | "unmatched" | "seen";
     order?: Order;
     listing?: Listing;
     collision?: boolean;
-  }>(({ listings, orders, users }) => {
+  }>(({ listings, orders }) => {
     if (orders.some((item) => item.matchedTxId === tx.id)) {
       seenTx.add(tx.id);
       return { outcome: "seen" };
@@ -169,19 +168,23 @@ export async function applyIncomingTx(tx: IncomingTx) {
     if (exact.length > 0) {
       const order = exact[0];
       const collision = exact.length > 1;
-      order.status = "paid";
       order.matchedTxId = tx.id;
       order.receivedAmount = tx.amount;
       if (collision) {
         order.note = "Aynı tutarda birden fazla bekleyen vardı; en eskiye bağlandı.";
       }
-      if (isTopup(order)) {
-        creditUser(users, order.telegramUserId, order.amount);
-      } else {
-        const listing = listings.find((item) => item.id === order.listingId);
-        if (listing) listing.status = "sold";
-      }
       const listing = listings.find((item) => item.id === order.listingId);
+      if (isTopup(order)) {
+        order.status = "awaiting_admin";
+        seenTx.add(tx.id);
+        return {
+          outcome: "awaiting_admin",
+          order: { ...order },
+          collision,
+        };
+      }
+      order.status = "paid";
+      if (listing) listing.status = "sold";
       seenTx.add(tx.id);
       return {
         outcome: "paid",
@@ -218,9 +221,11 @@ export async function applyIncomingTx(tx: IncomingTx) {
     return { outcome: "unmatched" };
   });
 
+  if (result.outcome === "awaiting_admin" && result.order) {
+    void notifyTopupAwaitingAdmin(result.order);
+  }
   if (result.outcome === "paid" && result.order) {
-    if (isTopup(result.order)) void notifyTopupPaid(result.order);
-    else if (result.listing) void notifyPaid(result.order, result.listing);
+    if (result.listing) void notifyPaid(result.order, result.listing);
     if (result.collision) {
       void notifyAdmin(
         `<b>Aynı tutarda birden fazla bekleyen</b>\n${tx.amount} USDT TX <code>${tx.id}</code> en eski siparişe bağlandı: <code>${result.order.id}</code>`,

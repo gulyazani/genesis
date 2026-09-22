@@ -23,6 +23,7 @@ export type Listing = {
 
 export type OrderStatus =
   | "pending"
+  | "awaiting_admin"
   | "paid"
   | "underpaid"
   | "expired"
@@ -45,6 +46,7 @@ export type Order = {
   receivedAmount?: number;
   status: OrderStatus;
   note?: string;
+  deliveredAt?: string;
   createdAt: string;
   expiresAt: string;
 };

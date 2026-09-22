@@ -65,8 +65,8 @@ export function BalancePage() {
             {formatUsdt(session?.balanceUsdt ?? 0)}
           </p>
           <p className="mt-3 text-sm text-white/50">
-            Giriş yok — Telegram Mini App kimliğin. USDT TRC-20 yükle, ilanı
-            bakiyeden al.
+            Giriş yok — Telegram Mini App kimliğin. USDT TRC-20 gönder; Nizam
+            onaylayınca bakiye işlenir. İlanı bakiyeden al.
           </p>
         </section>
 
@@ -111,8 +111,9 @@ export function BalancePage() {
           </div>
           <p className="mt-4 text-sm leading-relaxed text-amber-100/90">
             Yalnızca {session?.config.network ?? "TRC-20"} ·{" "}
-            {session?.config.asset ?? "USDT"}. Pencere {windowMin} dakika. Geç
-            veya yanlış token bakiyeye yazılmaz.
+            {session?.config.asset ?? "USDT"}. Pencere {windowMin} dakika. TX
+            görünce Nizam onaylar — otomatik bakiye yok. Geç veya yanlış token
+            eşleşmez.
           </p>
           <Input
             value={hint}

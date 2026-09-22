@@ -85,7 +85,9 @@ export function CheckoutPage({
             <p className="mt-4 text-[32px] font-semibold leading-none">
               {formatUsdt(listing.price)}
             </p>
-            <p className="mt-2 text-sm text-white/50">USD ≡ USDT · bakiyeden</p>
+            <p className="mt-2 text-sm text-white/50">
+              USD ≡ USDT · bakiyeden. Giriş bilgilerini Nizam Telegram’dan yollar.
+            </p>
           </section>
 
           <section className="rounded-[22px] bg-[#12121a] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">

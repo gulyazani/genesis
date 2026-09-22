@@ -1,6 +1,14 @@
 import { Bot, Keyboard, webhookCallback } from "grammy";
 import { getServerConfig, isAdmin } from "@/lib/config";
-import { expireOverdueOrders, getOrder, isTopup, listOrdersForUser, markOrder } from "@/lib/orders";
+import {
+  expireOverdueOrders,
+  getOrder,
+  isTopup,
+  listOrdersForUser,
+  markDelivered,
+  markOrder,
+} from "@/lib/orders";
+import { notifyDelivery } from "@/lib/notify";
 import { readListings } from "@/lib/store";
 import { formatUsdt, orderStatusLabel } from "@/lib/format";
 
@@ -116,7 +124,7 @@ export function getBot() {
 
   bot.command("paid", async (ctx) => {
     if (!ctx.from || !isAdmin(ctx.from.id)) {
-      await ctx.reply("Bu komut yalnızca yönetici yedeği.");
+      await ctx.reply("Bu komut yalnızca yönetici.");
       return;
     }
     const orderId = String(ctx.match ?? "").trim();
@@ -125,18 +133,22 @@ export function getBot() {
       return;
     }
     const result = await markOrder(orderId, "paid", {
-      note: "admin /paid yedek",
+      note: "Nizam onayı",
     });
     if ("error" in result) {
       await ctx.reply(result.error);
       return;
     }
-    await ctx.reply(`İşaretlendi: ${result.order.id} → paid (yedek).`);
+    await ctx.reply(
+      isTopup(result.order)
+        ? `Bakiye onaylandı: ${result.order.id} — tutar bakiyeye işlendi.`
+        : `Onaylandı: ${result.order.id} → paid.`,
+    );
   });
 
   bot.command("expire", async (ctx) => {
     if (!ctx.from || !isAdmin(ctx.from.id)) {
-      await ctx.reply("Bu komut yalnızca yönetici yedeği.");
+      await ctx.reply("Bu komut yalnızca yönetici.");
       return;
     }
     const orderId = String(ctx.match ?? "").trim();
@@ -156,11 +168,72 @@ export function getBot() {
       await ctx.reply(result.error);
       return;
     }
-    await ctx.reply(`İşaretlendi: ${result.order.id} → expired (yedek).`);
+    await ctx.reply(`İşaretlendi: ${result.order.id} → expired.`);
+  });
+
+  bot.command("help", async (ctx) => {
+    if (!ctx.from || !isAdmin(ctx.from.id)) {
+      await ctx.reply("Domainler · Satışa hazır liste · Siparişlerim · Bakiye yükle");
+      return;
+    }
+    await ctx.reply(
+      [
+        "Yönetici",
+        "/paid ord_... — görülen transferi bakiyeye yaz",
+        "/expire ord_... — yüklemeyi iptal et",
+        "/teslim ord_... kullanıcı şifre panel — giriş bilgilerini alıcıya gönder",
+        "Satır kırarak da yazabilirsin; ilk kelime sipariş id.",
+      ].join("\n"),
+    );
+  });
+
+  bot.command("teslim", async (ctx) => {
+    if (!ctx.from || !isAdmin(ctx.from.id)) {
+      await ctx.reply("Teslimat yalnızca yönetici.");
+      return;
+    }
+    const parsed = parseTeslimPayload(String(ctx.match ?? ""));
+    const orderId = parsed.orderId;
+    const body = parsed.body;
+    if (!orderId || !body) {
+      await ctx.reply(
+        "Kullanım: /teslim ord_... kullanıcı / şifre / panel (alıcıya iletilir).",
+      );
+      return;
+    }
+    const order = await getOrder(orderId);
+    if (!order) {
+      await ctx.reply("Sipariş bulunamadı.");
+      return;
+    }
+    if (isTopup(order)) {
+      await ctx.reply("Bu bir bakiye yüklemesi — /paid ile onayla.");
+      return;
+    }
+    if (order.status !== "paid") {
+      await ctx.reply("Önce satışın tamamlanmış olması gerekir.");
+      return;
+    }
+    const marked = await markDelivered(orderId);
+    if ("error" in marked) {
+      await ctx.reply(marked.error);
+      return;
+    }
+    const listings = await readListings();
+    const listing = listings.find((item) => item.id === order.listingId);
+    await notifyDelivery(order, listing?.title, body);
+    await ctx.reply(`Alıcıya iletildi: ${order.id}`);
   });
 
   g.__sellshellBot = bot;
   return bot;
+}
+
+function parseTeslimPayload(raw: string) {
+  const text = raw.trim();
+  const match = text.match(/^(\S+)\s+([\s\S]+)$/);
+  if (!match) return { orderId: "", body: "" };
+  return { orderId: match[1], body: match[2].trim() };
 }
 
 export function telegramWebhookHandler() {

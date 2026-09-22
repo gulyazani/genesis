@@ -18,6 +18,7 @@ export function OrderPage({ id }: { id: string }) {
   const [listing, setListing] = useState<Listing | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hint, setHint] = useState("");
+  const [delivery, setDelivery] = useState("");
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -74,7 +75,7 @@ export function OrderPage({ id }: { id: string }) {
   const tone =
     order?.status === "paid"
       ? "text-emerald-200"
-      : order?.status === "underpaid"
+      : order?.status === "underpaid" || order?.status === "awaiting_admin"
         ? "text-amber-200"
         : order?.status === "expired" || order?.status === "rejected"
           ? "text-red-200"
@@ -134,7 +135,9 @@ export function OrderPage({ id }: { id: string }) {
             <section className="rounded-[22px] bg-[#12121a] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
               <p className="text-sm leading-relaxed text-white/70">
                 USDT’yi {order.network} ile aşağıdaki adrese gönder. Watcher
-                eşleşince {order.kind === "topup" ? "bakiyen artar" : "sipariş paid olur"}.
+                görünce {order.kind === "topup"
+                  ? "Nizam bakiyeyi onaylar"
+                  : "sipariş paid olur"}.
               </p>
               <p className="mt-3 break-all font-mono text-sm">
                 {session?.config.wallet ||
@@ -170,11 +173,20 @@ export function OrderPage({ id }: { id: string }) {
             </section>
           ) : null}
 
+          {order.status === "awaiting_admin" ? (
+            <section className="rounded-[22px] bg-amber-500/10 p-5 text-sm text-amber-50 ring-1 ring-amber-400/20">
+              Transfer görüldü. Bakiye, Nizam onaylayınca işlenir. Telegram’da
+              /paid {order.id}
+            </section>
+          ) : null}
+
           {order.status === "paid" ? (
             <section className="rounded-[22px] bg-emerald-500/10 p-5 text-sm text-emerald-50 ring-1 ring-emerald-400/20">
               {order.kind === "topup"
-                ? "Bakiye yüklendi. Katalogdan bakiyeyle satın alabilirsin."
-                : "Satın alındı. Teslimat (auth-code veya zip) Telegram sohbetinden gelecek."}
+                ? "Nizam onayladı — bakiye işlendi."
+                : order.deliveredAt
+                  ? "Satın alındı. Giriş bilgileri Telegram’dan iletildi."
+                  : "Satın alındı. Nizam site / domain girişini Telegram’dan /teslim ile yollar."}
             </section>
           ) : null}
 
@@ -190,6 +202,82 @@ export function OrderPage({ id }: { id: string }) {
             <section className="rounded-[22px] bg-red-500/10 p-5 text-sm text-red-50 ring-1 ring-red-400/20">
               Pencere doldu. İlan yeniden satılık olabilir. Geç TX otomatik
               eşleşmez.
+            </section>
+          ) : null}
+
+          {session?.config.watcherMock &&
+          order.kind === "listing" &&
+          order.status === "paid" &&
+          !order.deliveredAt ? (
+            <section className="rounded-[22px] bg-[#12121a] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+              <p className="text-[11px] tracking-[0.16em] text-white/35">
+                LOCAL — TESLİMAT
+              </p>
+              <p className="mt-2 text-sm text-white/60">
+                Prod’da bunu bot’tan /teslim ile sen yazarsın. Bilgi diske
+                yazılmaz.
+              </p>
+              <Input
+                value={delivery}
+                onChange={(event) => setDelivery(event.target.value)}
+                placeholder="kullanıcı / şifre / panel"
+                className="mt-3 h-11 rounded-xl border-white/8 bg-black/30 text-sm"
+              />
+              <Button
+                className="mt-3 rounded-full bg-white text-black"
+                disabled={busy || !delivery.trim()}
+                onClick={async () => {
+                  setBusy(true);
+                  try {
+                    await apiPost(
+                      `/api/orders/${order.id}/deliver`,
+                      { message: delivery },
+                      initData,
+                    );
+                    setDelivery("");
+                    await load();
+                  } catch (err) {
+                    setError(
+                      err instanceof Error ? err.message : "Teslimat başarısız.",
+                    );
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                Alıcıya ilet (local)
+              </Button>
+            </section>
+          ) : null}
+
+          {session?.config.watcherMock && order.status === "awaiting_admin" ? (
+            <section className="rounded-[22px] bg-[#12121a] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+              <p className="text-[11px] tracking-[0.16em] text-white/35">
+                LOCAL — NİZAM ONAYI
+              </p>
+              <p className="mt-2 text-sm text-white/60">
+                Prod’da bunu bot’tan /paid ile sen yaparsın.
+              </p>
+              <Button
+                className="mt-3 rounded-full bg-white text-black"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  try {
+                    await apiPost(`/api/orders/${order.id}/confirm`, {}, initData);
+                    await load();
+                    await refresh();
+                  } catch (err) {
+                    setError(
+                      err instanceof Error ? err.message : "Onay başarısız.",
+                    );
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                Bakiyeyi onayla (local)
+              </Button>
             </section>
           ) : null}
 

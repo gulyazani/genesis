@@ -148,7 +148,11 @@ export async function setOrderHint(orderId: string, telegramUserId: string, hint
     if (order.telegramUserId !== telegramUserId) {
       return { error: "Bu sipariş sana ait değil." };
     }
-    if (order.status !== "pending" && order.status !== "underpaid") {
+    if (
+      order.status !== "pending" &&
+      order.status !== "underpaid" &&
+      order.status !== "awaiting_admin"
+    ) {
       return { error: "Bu siparişe TX hash eklenemez." };
     }
     order.txHashHint = hint.trim().toLowerCase() || undefined;
@@ -187,6 +191,7 @@ export async function markOrder(
       if (extra?.note) order.note = extra.note;
       if (isTopup(order)) {
         creditUser(users, order.telegramUserId, order.amount);
+        if (!order.note) order.note = "Nizam bakiye onayı";
       } else if (listing) {
         listing.status = "sold";
       }
@@ -231,4 +236,19 @@ export async function expireOverdueOrders(now = Date.now()) {
     else if (item.listing) void notifyExpired(item.order, item.listing);
   }
   return expired;
+}
+
+export async function markDelivered(orderId: string) {
+  return mutateStore<{ order: Order } | { error: string }>(({ orders }) => {
+    const order = orders.find((item) => item.id === orderId);
+    if (!order) return { error: "Sipariş bulunamadı." };
+    if (order.kind === "topup") {
+      return { error: "Bakiye yüklemesine teslimat yazılmaz." };
+    }
+    if (order.status !== "paid") {
+      return { error: "Önce satışın paid olması gerekir." };
+    }
+    order.deliveredAt = new Date().toISOString();
+    return { order: { ...order } };
+  });
 }
