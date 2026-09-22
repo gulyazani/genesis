@@ -113,6 +113,21 @@ Yönetici (yalnızca `TELEGRAM_ADMIN_ID`):
 - `/teslim <sipariş-id> kullanıcı şifre panel` — giriş bilgilerini alıcıya ilet (diske yazılmaz)
 - `/help` — kısa hatırlatma
 
+## Nasıl çalışır (cPanel değil)
+
+cPanel’de site = klasörü `public_html`’e at, Apache HTML/PHP okusun. **sellshell öyle değil.**
+
+Bu bir **program**. VPS’te sürekli açık kalır (Docker). Telegram veya tarayıcı `https://supershell.click` deyince Cloudflare istekleri o programa iletir; program sayfayı o an üretir, bakiyeyi yazar, bot mesajı atar. Klasörü panele kopyalamak programı **açmaz** — o yüzden `defaultwebpage.cgi` duruyor.
+
+| Parça | Ne işe yarar |
+| --- | --- |
+| Kod (`app/`, `lib/`, …) | Programın kendisi. Git ile sunucuya çekilir. |
+| Docker | Programı çalıştırır (mini app + bot + izleyici). |
+| Cloudflare | `supershell.click` kilidini tutar (HTTPS). VPS’te SSL yok. |
+| `.env` | Gizli ayar kağıdı: bot token, senin Telegram ID, cüzdan. **Sadece sunucuda.** Git’e / cPanel’e / sohbete koyma. |
+
+`.env` = environment (ortam değişkenleri). Program açılınca bu dosyayı okur: “botum bu, cüzdan bu.” `.env.example` boş şablondur; gerçeğini sen sunucuda `nano .env` ile doldurursun. Bilgisayarındaki `.env.local` da aynı şey, local demo için.
+
 ## Sırada (cPanel’e zip atma)
 
 Bu bir Next.js + bot süreci. cPanel File Manager / `public_html` **çalışmaz**. `index.html` yok; `docker compose` (veya SSH + Node) lazım.
