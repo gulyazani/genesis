@@ -128,52 +128,40 @@ Bu bir **program**. VPS’te sürekli açık kalır (Docker). Telegram veya tara
 
 `.env` = environment (ortam değişkenleri). Program açılınca bu dosyayı okur: “botum bu, cüzdan bu.” `.env.example` boş şablondur; gerçeğini sen sunucuda `nano .env` ile doldurursun. Bilgisayarındaki `.env.local` da aynı şey, local demo için.
 
-## Sırada (cPanel’e zip atma)
+## Sırada — başka siteler duruyor (Apache’yi kapatma)
 
-Bu bir Next.js + bot süreci. cPanel File Manager / `public_html` **çalışmaz**. `index.html` yok; `docker compose` (veya SSH + Node) lazım.
+Aynı sunucuda diğer cPanel siteleri **açık kalsın**. Apache’yi / 80’i durdurma. sellshell 80’i çalmaz; sadece `supershell.click` ona yönlenir.
 
-1. SSH ile VPS’e gir (kök veya sudo).
-2. Cloudflare SSL/TLS = **Flexible**. Full değil.
-3. 80’i tutan cPanel/Apache’yi durdur — yoksa `defaultwebpage.cgi` kalır.
-4. Repoyu sunucuya çek, `.env` doldur, `docker compose up -d --build`.
-5. `https://supershell.click/api/health` → `sellshell` görünce BotFather + `setWebhook`.
-
-## VPS + Cloudflare (origin SSL yok)
-
-Ziyaretçi ve Telegram **HTTPS** görür; sertifikayı Cloudflare verir. VPS’te Let’s Encrypt / Caddy TLS **kurma**.
-
-Cloudflare:
-
-1. DNS `A` (veya `AAAA`) `supershell.click` → VPS IP, **Proxied** (turuncu bulut).
-2. SSL/TLS → **Flexible**. Full / Full (strict) origin sertifikası ister; atladıysan 525/500 olur.
-3. Always Use HTTPS: açık.
-4. Bot Fight Mode kapalı (Telegram webhook POST’unu keser).
-5. Origin :80’de **sellshell** olmalı. Şu an `defaultwebpage.cgi` (cPanel varsayılanı) duruyorsa Apache/httpd’yi durdur veya vhost’u kapat; 80 Caddy’nin.
+1. SSH.
+2. Kodu `~/sellshell` gibi bir yere çek (`public_html` değil).
+3. `.env` doldur, `docker compose up -d --build` — program `127.0.0.1:43127` dinler, dışarı açılmaz.
+4. **Yalnızca** `supershell.click` için Apache proxy: `deploy/apache-supershell.conf` → `httpd` reload. Diğer domain vhost’larına dokunma.
+5. Cloudflare SSL **Flexible**.
+6. `https://supershell.click/api/health` → `sellshell`. Öbür sitelerin URL’leri aynı kalır.
 
 ```bash
-# 80’i tutan eski panel
-sudo systemctl stop apache2 httpd nginx 2>/dev/null || true
-
+cd ~
+git clone -b cursor/faz1-mini-app-6faf https://github.com/nizam-zdemir/genesis.git sellshell
+cd sellshell
 cp .env.example .env
-# BOT_TOKEN TELEGRAM_ADMIN_ID CRYPTO_WALLET_ADDRESS
-# MINI_APP_URL=https://supershell.click
-# WATCHER_MOCK=0
-# DEV_BYPASS_TELEGRAM=0
+nano .env   # token, admin id, cüzdan, MINI_APP_URL, WATCHER_MOCK=0, DEV_BYPASS_TELEGRAM=0
 docker compose up -d --build
+
+# proxy: Ubuntu/Alma yollarından hangisi varsa
+sudo cp deploy/apache-supershell.conf /etc/httpd/conf.d/supershell.conf
+# yoksa: sudo cp deploy/apache-supershell.conf /etc/apache2/conf.d/supershell.conf
+sudo apachectl configtest && sudo systemctl reload httpd
 ```
 
-Kanıt (sellshell olmadan `setWebhook` yok):
+Kanıt:
 
 ```bash
-curl -s http://127.0.0.1/api/health
-# {"ok":true,"service":"sellshell",...}
-
+curl -s http://127.0.0.1:43127/api/health
+curl -s -H 'Host: supershell.click' http://127.0.0.1/api/health
 curl -s https://supershell.click/api/health
 ```
 
-Caddy `auto_https off`, yalnızca `:80` → `app:43127`. Host Caddy + pm2: `Caddyfile.example` (`127.0.0.1:43127`).
-
-43127’yi internete açma; Cloudflare yalnızca 80’e gelsin.
+`proxy` / `proxy_http` kapalıysa WHM → EasyApache’de aç. `configtest` kızarsa söyle, kırmadan düzeltiriz.
 
 ## Veri
 
