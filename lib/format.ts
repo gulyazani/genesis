@@ -45,7 +45,7 @@ export function orderStatusLabel(status: OrderStatus) {
     case "pending":
       return "Ödeme bekleniyor";
     case "awaiting_admin":
-      return "Nizam onayı bekleniyor";
+      return "Onay bekleniyor";
     case "paid":
       return "Ödendi";
     case "underpaid":

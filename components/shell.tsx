@@ -27,7 +27,7 @@ export function AppShell({
             <Hexagon className="size-4 text-sky-300" strokeWidth={2.2} />
           </span>
           <span className="truncate text-[15px] font-medium tracking-tight">
-            sellshell
+            supershell
             <span className="mx-1.5 text-white/25">{"//"}</span>
             <span className="text-white/45">{title}</span>
           </span>

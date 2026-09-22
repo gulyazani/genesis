@@ -21,7 +21,7 @@ export async function POST(
   const allowed =
     isAdmin(session.user.id) || (cfg.devBypass && cfg.watcherMock);
   if (!allowed) {
-    return NextResponse.json({ error: "Teslimatı yalnızca Nizam yazar." }, { status: 403 });
+    return NextResponse.json({ error: "Teslimatı yalnızca yönetici yazar." }, { status: 403 });
   }
   const { id } = await params;
   let payload: { message?: string };

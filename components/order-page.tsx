@@ -136,7 +136,7 @@ export function OrderPage({ id }: { id: string }) {
               <p className="text-sm leading-relaxed text-white/70">
                 USDT’yi {order.network} ile aşağıdaki adrese gönder. Watcher
                 görünce {order.kind === "topup"
-                  ? "Nizam bakiyeyi onaylar"
+                  ? "supershell bakiyeyi onaylar"
                   : "sipariş paid olur"}.
               </p>
               <p className="mt-3 break-all font-mono text-sm">
@@ -175,18 +175,17 @@ export function OrderPage({ id }: { id: string }) {
 
           {order.status === "awaiting_admin" ? (
             <section className="rounded-[22px] bg-amber-500/10 p-5 text-sm text-amber-50 ring-1 ring-amber-400/20">
-              Transfer görüldü. Bakiye, Nizam onaylayınca işlenir. Telegram’da
-              /paid {order.id}
+              Transfer görüldü. Bakiye, supershell onaylayınca işlenir.
             </section>
           ) : null}
 
           {order.status === "paid" ? (
             <section className="rounded-[22px] bg-emerald-500/10 p-5 text-sm text-emerald-50 ring-1 ring-emerald-400/20">
               {order.kind === "topup"
-                ? "Nizam onayladı — bakiye işlendi."
+                ? "Onaylandı — bakiye işlendi."
                 : order.deliveredAt
                   ? "Satın alındı. İlan stoktan düştü. Giriş bilgileri Telegram’dan iletildi."
-                  : "Satın alındı. İlan stoktan düştü. Nizam site / domain girişini Telegram’dan /teslim ile yollar."}
+                  : "Satın alındı. İlan stoktan düştü. supershell giriş bilgilerini Telegram’dan yollar."}
             </section>
           ) : null}
 
@@ -194,7 +193,7 @@ export function OrderPage({ id }: { id: string }) {
             <section className="rounded-[22px] bg-amber-500/10 p-5 text-sm text-amber-50 ring-1 ring-amber-400/20">
               Eksik tutar: gelen {formatUsdt(order.receivedAmount ?? 0)}, beklenen{" "}
               {formatUsdt(order.amount)}. Otomatik paid yok. Kalanı gönder veya
-              Nizam’a yaz.
+              destek için yaz.
             </section>
           ) : null}
 

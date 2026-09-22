@@ -20,10 +20,10 @@ export async function POST(
   const allowed =
     isAdmin(session.user.id) || (cfg.devBypass && cfg.watcherMock);
   if (!allowed) {
-    return NextResponse.json({ error: "Yalnızca Nizam onaylar." }, { status: 403 });
+    return NextResponse.json({ error: "Yalnızca yönetici onaylar." }, { status: 403 });
   }
   const { id } = await params;
-  const result = await markOrder(id, "paid", { note: "Nizam onayı" });
+  const result = await markOrder(id, "paid", { note: "yönetici onayı" });
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }

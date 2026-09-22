@@ -193,7 +193,7 @@ export async function markOrder(
       if (extra?.note) order.note = extra.note;
       if (isTopup(order)) {
         creditUser(users, order.telegramUserId, order.amount);
-        if (!order.note) order.note = "Nizam bakiye onayı";
+        if (!order.note) order.note = "bakiye onayı";
       } else if (listing && listing.status !== "sold") {
         listing.status = "sold";
       }

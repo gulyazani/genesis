@@ -57,7 +57,7 @@ export function paidBuyerText(order: Order, listing: Listing) {
     `<b>Ödeme görüldü</b> — ${listing.title}`,
     `${formatUsdt(order.amount)} ${order.asset} alındı.`,
     order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
-    "Nizam giriş bilgilerini bu sohbetten /teslim ile yollayacak.",
+    "supershell giriş bilgilerini bu sohbetten iletecek.",
   ]
     .filter(Boolean)
     .join("\n");
@@ -78,7 +78,7 @@ export function paidAdminText(order: Order, listing: Listing) {
 export function expiredBuyerText(order: Order, listing: Listing) {
   return [
     `<b>Süre doldu</b> — ${listing.title}`,
-    "İzleme penceresi kapandı. İlan yeniden satılık. Geç TX otomatik eşleşmez; Nizam'a yaz.",
+    "İzleme penceresi kapandı. İlan yeniden satılık. Geç TX otomatik eşleşmez; destek için yaz.",
     `Sipariş: <code>${order.id}</code>`,
   ].join("\n");
 }
@@ -164,7 +164,7 @@ export async function notifyPurchase(order: Order, listing: Listing) {
       `<b>Satın alındı</b> — ${listing.title}`,
       `${formatUsdt(order.amount)} bakiyeden düşüldü.`,
       "İlan stoktan düştü — Satışa hazır listede durmaz.",
-      "Nizam site / domain giriş bilgilerini bu sohbetten iletecek.",
+      "supershell site / domain giriş bilgilerini bu sohbetten iletecek.",
     ].join("\n"),
   );
   await notifyAdmin(
@@ -187,7 +187,7 @@ export async function notifyTopupCreated(order: Order) {
       `<b>Bakiye yükleme</b>`,
       `${formatUsdt(order.amount)} · ${order.network} ${order.asset}`,
       cfg.wallet ? `Cüzdan: <code>${cfg.wallet}</code>` : "Cüzdan henüz ayarlı değil.",
-      `Pencere: ${cfg.watchWindowMin} dk. TX görünce Nizam bakiyeyi onaylar.`,
+      `Pencere: ${cfg.watchWindowMin} dk. TX görünce supershell bakiyeyi onaylar.`,
       `Sipariş: <code>${order.id}</code>`,
     ].join("\n"),
   );
@@ -206,7 +206,7 @@ export async function notifyTopupAwaitingAdmin(order: Order) {
     order.telegramUserId,
     [
       `<b>Transfer görüldü</b>`,
-      `${formatUsdt(order.amount)} — Nizam onaylayınca bakiyen işlenir.`,
+      `${formatUsdt(order.amount)} — onaylanınca bakiyen işlenir.`,
       `Sipariş: <code>${order.id}</code>`,
     ].join("\n"),
   );

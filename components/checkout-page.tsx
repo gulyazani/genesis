@@ -87,7 +87,7 @@ export function CheckoutPage({
               {formatUsdt(listing.price)}
             </p>
             <p className="mt-2 text-sm text-white/50">
-              USD ≡ USDT · bakiyeden. Giriş bilgilerini Nizam Telegram’dan yollar.
+              USD ≡ USDT · bakiyeden. Giriş bilgilerini supershell Telegram’dan yollar.
             </p>
           </section>
 

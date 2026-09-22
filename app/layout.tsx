@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "sellshell",
-  description: "Nizam'ın domain ve siteleri — USDT TRC-20 ile Telegram Mini App.",
+  title: "supershell",
+  description: "supershell — domain ve siteler. USDT TRC-20, Telegram Mini App.",
 };
 
 export const viewport: Viewport = {

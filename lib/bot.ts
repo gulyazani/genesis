@@ -35,7 +35,7 @@ function welcomeText() {
   return [
     "<b>Hoş geldiniz.</b>",
     "",
-    "Nizam'ın kendi domain ve web siteleri burada.",
+    "supershell — domain ve web siteleri.",
     "Komutlar Mini App açmadan da çalışır.",
     "",
     "/domainler — domainler",
@@ -154,7 +154,7 @@ async function replyBakiye(ctx: Context) {
       `Pencere: ${cfg.watchWindowMin} dakika.`,
       "",
       "Yüklemek için: /yukle 50",
-      "Nizam onaylayınca (/paid) bakiye işlenir.",
+      "Onaylanınca bakiye işlenir.",
     ].join("\n"),
     { parse_mode: "HTML" },
   );
@@ -188,7 +188,7 @@ async function replyYukle(ctx: Context) {
         : "Cüzdan adresi henüz ayarlı değil.",
       `Sipariş: <code>${order.id}</code>`,
       `Pencere: ${cfg.watchWindowMin} dakika.`,
-      "Gönderince Nizam /paid ile onaylar. Bakiye o zaman artar.",
+      "Transfer görünce supershell onaylar. Bakiye o zaman artar.",
     ].join("\n"),
     { parse_mode: "HTML" },
   );
@@ -222,7 +222,7 @@ async function replyAl(ctx: Context) {
       `${formatUsdt(result.order.amount)} bakiyeden düştü.`,
       `Kalan: ${formatUsdt(result.balanceUsdt)}`,
       `Sipariş: <code>${result.order.id}</code>`,
-      "Giriş bilgilerini Nizam sohbetten yollar.",
+      "Giriş bilgilerini supershell sohbetten yollar.",
     ].join("\n"),
     { parse_mode: "HTML" },
   );
@@ -319,7 +319,7 @@ export function getBot() {
       return;
     }
     const result = await markOrder(orderId, "paid", {
-      note: "Nizam onayı",
+      note: "yönetici onayı",
     });
     if ("error" in result) {
       await ctx.reply(result.error);
