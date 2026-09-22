@@ -1,18 +1,61 @@
 #!/bin/sh
-# Sunucuda: cd ~/sellshell && sh webhook.sh
+# Sunucuda (her yerden):
+#   curl -fsSL https://raw.githubusercontent.com/gulyazani/genesis/main/webhook.sh -o /tmp/webhook.sh
+#   sh /tmp/webhook.sh
 # Token'ı ekrana yazmaz. .env içinden okur.
 
 set -e
-cd "$(dirname "$0")"
 
-if [ ! -f .env ]; then
-  echo "Yok: .env  — önce cp .env.example .env ve BOT_TOKEN doldur."
+find_app() {
+  for d in \
+    "$(pwd)" \
+    "$(CDPATH= cd -- "$(dirname "$0")" && pwd)" \
+    "$HOME/sellshell" \
+    /root/sellshell \
+    "$HOME/genesis" \
+    /root/genesis \
+    /root/supershell \
+    "$HOME/supershell"
+  do
+    [ -n "$d" ] || continue
+    if [ -f "$d/.env" ]; then
+      printf '%s\n' "$d"
+      return 0
+    fi
+  done
+
+  found=$(find "$HOME" /root /opt -maxdepth 4 -type f -name .env 2>/dev/null | while read -r f; do
+    dir=$(dirname "$f")
+    if [ -f "$dir/docker-compose.yml" ] || [ -f "$dir/package.json" ]; then
+      printf '%s\n' "$dir"
+      break
+    fi
+  done)
+  if [ -n "$found" ]; then
+    printf '%s\n' "$found"
+    return 0
+  fi
+  return 1
+}
+
+APP=$(find_app) || {
+  echo "sellshell klasoru / .env bulunamadi."
+  echo "pwd: $(pwd)"
+  echo "ls ~:"
+  ls "$HOME" || true
   exit 1
-fi
+}
+
+cd "$APP"
+echo "klasor $APP"
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "python3 yok. Sunucuda: apt install -y python3"
   exit 1
+fi
+
+if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then
+  docker compose up -d >/dev/null 2>&1 || docker-compose up -d >/dev/null 2>&1 || true
 fi
 
 python3 - <<'PY'

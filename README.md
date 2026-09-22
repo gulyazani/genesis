@@ -100,9 +100,8 @@ Hedef host: **supershell.click**.
 3. Webhook — token’ı sohbete veya `curl` satırına yazma. Site `{"service":"sellshell"}` dönüyorsa sunucuda:
 
 ```bash
-cd ~/sellshell
-git pull
-sh webhook.sh
+curl -fsSL https://raw.githubusercontent.com/gulyazani/genesis/main/webhook.sh -o /tmp/webhook.sh
+sh /tmp/webhook.sh
 ```
 
 Script `.env` içindeki `BOT_TOKEN`’ı okur, ekrana yazmaz. `ok true` görmelisin. Token boşsa Telegram 404 verir — o yüzden `${BOT_TOKEN}` ile elle curl atma.
