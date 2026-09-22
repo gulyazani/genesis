@@ -278,7 +278,7 @@ export function getBot() {
       .setChatMenuButton({
         menu_button: {
           type: "web_app",
-          text: "Domainler",
+          text: "Mini App",
           web_app: { url: appPath(miniAppUrl, "/") },
         },
       })
