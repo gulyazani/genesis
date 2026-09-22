@@ -19,14 +19,12 @@ function appPath(base: string, path: string) {
   return path === "/" ? root : `${root}${path}`;
 }
 
-function welcomeText(name: string, userId: number) {
+function welcomeText() {
   return [
-    `Hoş geldin, ${name}.`,
+    "<b>Hoş geldiniz.</b>",
     "",
-    "sellshell — Nizam'ın kendi domain ve siteleri. Giriş yok; Mini App Telegram kimliğin.",
-    `ID: <code>${userId}</code>`,
-    "",
-    "Domainler · Satışa hazır liste · Siparişlerim · Bakiye yükle",
+    "Nizam'ın kendi domain ve web siteleri burada.",
+    "Alttaki menüden devam edin.",
   ].join("\n");
 }
 
@@ -84,9 +82,7 @@ export function getBot() {
   }
 
   bot.command("start", async (ctx) => {
-    const name = ctx.from?.first_name ?? "oradaki";
-    const id = ctx.from?.id ?? 0;
-    await ctx.reply(welcomeText(name, id), {
+    await ctx.reply(welcomeText(), {
       parse_mode: "HTML",
       reply_markup: replyKeyboard(miniAppUrl),
     });
