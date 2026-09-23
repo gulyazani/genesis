@@ -7,5 +7,7 @@ export async function GET() {
     ok: true,
     service: "sellshell",
     host: "supershell.click",
+    release: "ss-admin-1",
+    admin: true,
   });
 }
