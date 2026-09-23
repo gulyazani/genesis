@@ -17,9 +17,10 @@ fi
 cd "$APP"
 echo "klasor $APP"
 
-curl -fsSL https://raw.githubusercontent.com/gulyazani/genesis/main/lib/bot.ts -o lib/bot.ts
+git fetch https://github.com/gulyazani/genesis.git main
+git checkout FETCH_HEAD -- app lib components public scripts README.md package.json package-lock.json
 git pull --ff-only || true
 
 docker compose build --no-cache
 docker compose up -d --force-recreate
-echo "bitti. Telegram'da /start"
+echo "bitti. Ac: https://supershell.click/admin"
