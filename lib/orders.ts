@@ -45,6 +45,15 @@ export async function listOrdersForUser(telegramUserId: string) {
     .map(withLiveWallet);
 }
 
+export async function listAdminTopups() {
+  const orders = await readOrders();
+  return orders
+    .filter(isTopup)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, 50)
+    .map(withLiveWallet);
+}
+
 export async function purchaseFromBalance(input: {
   listingId: string;
   telegramUserId: string;

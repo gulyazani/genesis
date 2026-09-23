@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { formatUsdt, statusLabel } from "@/lib/format";
-import type { AdminListingRow, DeliveryMethod, ListingType } from "@/lib/types";
+import { formatUsdt, orderStatusLabel, statusLabel } from "@/lib/format";
+import type { AdminListingRow, DeliveryMethod, ListingType, Order } from "@/lib/types";
 
 const METHODS: { id: DeliveryMethod; label: string; hint: string }[] = [
   {
@@ -34,7 +34,9 @@ function methodName(method: DeliveryMethod) {
 export function AdminPanel() {
   const router = useRouter();
   const [rows, setRows] = useState<AdminListingRow[] | null>(null);
+  const [topups, setTopups] = useState<Order[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [acting, setActing] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [price, setPrice] = useState("100");
@@ -60,6 +62,11 @@ export function AdminPanel() {
       return;
     }
     setRows(data.listings ?? []);
+    const top = await fetch("/api/admin/topups");
+    if (top.ok) {
+      const payload = (await top.json()) as { topups?: Order[] };
+      setTopups(payload.topups ?? []);
+    }
   }
 
   useEffect(() => {
@@ -121,6 +128,34 @@ export function AdminPanel() {
     await load();
   }
 
+  async function actTopup(id: string, action: "paid" | "expire") {
+    setActing(id);
+    const res = await fetch(`/api/admin/topups/${id}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action }),
+    });
+    setActing(null);
+    if (res.status === 401) {
+      router.replace("/admin/login");
+      return;
+    }
+    if (!res.ok) {
+      const data = (await res.json()) as { error?: string };
+      setError(data.error ?? "İşlem olmadı.");
+      return;
+    }
+    await load();
+  }
+
+  function canDecide(status: Order["status"]) {
+    return (
+      status === "pending" ||
+      status === "awaiting_admin" ||
+      status === "underpaid"
+    );
+  }
+
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
     router.replace("/admin/login");
@@ -137,6 +172,62 @@ export function AdminPanel() {
           Çıkış
         </Button>
       </div>
+
+      <section className="space-y-3 rounded-[22px] bg-[#12121a] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+        <div>
+          <p className="text-[11px] tracking-[0.16em] text-white/35">YATIRIMLAR</p>
+          <p className="mt-1 text-sm text-white/45">
+            USDT gelince Onayla — bakiye yazılır. Telegram’da da{" "}
+            <code className="text-white/70">/paid ord_...</code> çalışır.
+          </p>
+        </div>
+        {topups === null ? (
+          <p className="text-sm text-white/45">Yükleniyor…</p>
+        ) : topups.length === 0 ? (
+          <p className="text-sm text-white/45">Bekleyen yükleme yok.</p>
+        ) : (
+          <ul className="space-y-3">
+            {topups.map((item) => (
+              <li
+                key={item.id}
+                className="flex flex-col gap-3 rounded-2xl bg-black/25 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium">{formatUsdt(item.amount)}</p>
+                  <p className="mt-1 break-all text-sm text-white/45">
+                    {orderStatusLabel(item.status)} · {item.telegramName || item.telegramUserId}
+                  </p>
+                  <p className="mt-1 break-all font-mono text-[11px] text-white/35">
+                    {item.id}
+                    {item.matchedTxId ? ` · TX ${item.matchedTxId}` : ""}
+                  </p>
+                </div>
+                {canDecide(item.status) ? (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      className="rounded-full"
+                      disabled={acting === item.id}
+                      onClick={() => void actTopup(item.id, "paid")}
+                    >
+                      Onayla
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="rounded-full"
+                      disabled={acting === item.id}
+                      onClick={() => void actTopup(item.id, "expire")}
+                    >
+                      Reddet
+                    </Button>
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <form
         onSubmit={addListing}

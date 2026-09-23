@@ -94,7 +94,7 @@ curl -s -X POST http://127.0.0.1:43127/api/orders/<id>/deliver \
 
 ## Admin panel
 
-`https://supershell.click/admin` — kullanıcı + şifre. İlan ekle / sil.
+`https://supershell.click/admin` — kullanıcı + şifre. İlan ekle / sil. Üstte **Yatırımlar**: Onayla bakiyeyi yazar, Reddet iptal eder. Telegram yedek: `/paid ord_...` / `/expire ord_...`.
 
 İlan eklerken **authority score** (0–100) yazılır; katalog ve bot listesinde görünür.
 
