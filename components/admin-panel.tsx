@@ -41,7 +41,7 @@ export function AdminPanel() {
   const [url, setUrl] = useState("");
   const [price, setPrice] = useState("100");
   const [authorityScore, setAuthorityScore] = useState("");
-  const [type, setType] = useState<ListingType>("domain");
+  const [type, setType] = useState<ListingType>("website");
   const [method, setMethod] = useState<DeliveryMethod>("cpanel");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -233,10 +233,13 @@ export function AdminPanel() {
         onSubmit={addListing}
         className="space-y-4 rounded-[22px] bg-[#12121a] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
       >
-        <p className="text-[11px] tracking-[0.16em] text-white/35">İLAN EKLE</p>
+        <p className="text-[11px] tracking-[0.16em] text-white/35">SİTE EKLE</p>
+        <p className="text-sm text-white/45">
+          Kaydetince katalogda çıkar. Silince stoktan düşer.
+        </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-xs text-white/45">Domain / site</label>
+            <label className="mb-1.5 block text-xs text-white/45">Site / domain adı</label>
             <Input
               value={title}
               onChange={(event) => setTitle(event.target.value)}
@@ -275,8 +278,8 @@ export function AdminPanel() {
               onChange={(event) => setType(event.target.value as ListingType)}
               className="h-11 w-full rounded-xl border border-white/8 bg-black/30 px-3 text-sm"
             >
-              <option value="domain">Domain</option>
               <option value="website">Site</option>
+              <option value="domain">Domain</option>
             </select>
           </div>
           <div className="sm:col-span-2">
@@ -367,17 +370,17 @@ export function AdminPanel() {
 
         {formError ? <p className="text-sm text-red-300">{formError}</p> : null}
         <Button type="submit" className="h-11 rounded-full" disabled={saving}>
-          {saving ? "Ekleniyor…" : "İlanı kaydet"}
+          {saving ? "Ekleniyor…" : "Siteyi kaydet"}
         </Button>
       </form>
 
       <section className="rounded-[22px] bg-[#12121a] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
-        <p className="text-[11px] tracking-[0.16em] text-white/35">İLANLAR</p>
+        <p className="text-[11px] tracking-[0.16em] text-white/35">SİTELER</p>
         {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
         {rows === null ? (
           <p className="mt-4 text-sm text-white/45">Yükleniyor…</p>
         ) : rows.length === 0 ? (
-          <p className="mt-4 text-sm text-white/45">Henüz ilan yok. Yukarıdan ekle.</p>
+          <p className="mt-4 text-sm text-white/45">Henüz site yok. Yukarıdan ekle.</p>
         ) : (
           <ul className="mt-4 space-y-3">
             {rows.map((item) => (
@@ -388,8 +391,9 @@ export function AdminPanel() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{item.title}</p>
                   <p className="mt-1 text-sm text-white/45">
-                    {formatUsdt(item.price)} · AS{" "}
-                    {item.authorityScore ?? "—"} · {statusLabel(item.status)} ·{" "}
+                    {item.type === "website" ? "Site" : "Domain"} ·{" "}
+                    {formatUsdt(item.price)} · AS {item.authorityScore ?? "—"} ·{" "}
+                    {statusLabel(item.status)} ·{" "}
                     {item.delivery ? methodName(item.delivery.method) : "teslimat yok"}
                   </p>
                 </div>
@@ -399,7 +403,7 @@ export function AdminPanel() {
                   className="rounded-full"
                   onClick={() => void remove(item.id)}
                 >
-                  Sil
+                  Siteyi çıkar
                 </Button>
               </li>
             ))}
