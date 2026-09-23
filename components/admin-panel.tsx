@@ -178,7 +178,7 @@ export function AdminPanel() {
           <p className="text-[11px] tracking-[0.16em] text-white/35">YATIRIMLAR</p>
           <p className="mt-1 text-sm text-white/45">
             USDT gelince Onayla — bakiye yazılır. Telegram’da da{" "}
-            <code className="text-white/70">/paid ord_...</code> çalışır.
+            <code className="text-white/70">/accept ord_...</code> çalışır.
           </p>
         </div>
         {topups === null ? (

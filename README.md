@@ -2,7 +2,7 @@
 
 supershell — domain ve web sitesi satışı. Telegram botu + Mini App.
 
-Ödeme: **USDT TRC-20** firma cüzdanına. Watcher TX’i görür; **bakiye ancak yönetici `/paid` deyince** artar. İlan **bakiyeden**. Satın alınca giriş bilgilerini yönetici bot’tan **`/teslim`** ile yollar. Merchant, IBAN, Stars, Telegram Payments yok.
+Ödeme: **USDT TRC-20** firma cüzdanına. Watcher TX’i görür; **bakiye ancak yönetici `/accept` deyince** artar. İlan **bakiyeden**. Satın alınca giriş bilgilerini yönetici bot’tan **`/teslim`** ile yollar. Merchant, IBAN, Stars, Telegram Payments yok.
 
 Yüzey kilitli: **Domainler** · **Satışa hazır liste** · **Siparişlerim** · **Bakiye yükle**. Dil: Türkçe. Host: kendi VPS (Docker + Caddy). Giriş yok — `initData`.
 
@@ -11,8 +11,8 @@ Yüzey kilitli: **Domainler** · **Satışa hazır liste** · **Siparişlerim** 
 ## Akış
 
 1. Alıcı **Bakiye yükle** — tutar + supershell cüzdanı. Order `kind=topup` `pending`.
-2. Watcher eşleşince `awaiting_admin` — bakiye **yazılmaz**. Yöneticiye `/paid ord_...` gider.
-3. Yönetici `/paid` → `paid` + `balanceUsdt` artar. Red: `/expire`.
+2. Watcher eşleşince `awaiting_admin` — bakiye **yazılmaz**. Yöneticiye `/accept ord_...` gider.
+3. Yönetici `/accept` → `paid` + `balanceUsdt` artar. Red: `/expire`.
 4. Alıcı Domainler / Satışa hazır listeden **bakiyeden satın al** — listing `sold`, stoktan düşer, order hemen `paid`. Satışa hazır listede durmaz.
 5. Yönetici `/teslim ord_... kullanıcı şifre panel` — metin alıcıya iletilir, `deliveredAt` işaretlenir. Şifre diske yazılmaz.
 
@@ -55,7 +55,7 @@ curl -s -X POST http://127.0.0.1:43127/api/watcher/mock \
 
 curl -s http://127.0.0.1:43127/api/me   # hâlâ 0 — awaiting_admin
 
-# local yönetici onayı (prod’da bot /paid):
+# local yönetici onayı (prod’da bot /accept):
 curl -s -X POST http://127.0.0.1:43127/api/orders/<id>/confirm \
   -H 'content-type: application/json' \
   -d '{}'
@@ -82,7 +82,7 @@ curl -s -X POST http://127.0.0.1:43127/api/orders/<id>/deliver \
 | Değişken | Faz 1 |
 | --- | --- |
 | `BOT_TOKEN` | BotFather. Zorunlu (bot + `initData` HMAC) |
-| `TELEGRAM_ADMIN_ID` | Yönetici Telegram `user.id`. `/paid` `/expire` `/teslim` |
+| `TELEGRAM_ADMIN_ID` | Yönetici Telegram `user.id`. `/accept` `/expire` `/teslim` |
 | `MINI_APP_URL` | Mini App + menü. Hedef: `https://supershell.click` (trailing slash yok) |
 | `CRYPTO_WALLET_ADDRESS` | TRC-20 USDT cüzdan. Yoksa checkout uyarır; mock yine çalışır |
 | `CRYPTO_ASSET` / `CRYPTO_NETWORK` | Varsayılan `USDT` / `TRC-20` |
@@ -94,7 +94,7 @@ curl -s -X POST http://127.0.0.1:43127/api/orders/<id>/deliver \
 
 ## Admin panel
 
-`https://supershell.click/admin` — kullanıcı + şifre. İlan ekle / sil. Üstte **Yatırımlar**: Onayla bakiyeyi yazar, Reddet iptal eder. Telegram yedek: `/paid ord_...` / `/expire ord_...`.
+`https://supershell.click/admin` — kullanıcı + şifre. İlan ekle / sil. Üstte **Yatırımlar**: Onayla bakiyeyi yazar, Reddet iptal eder. Telegram: `/accept ord_...` / `/expire ord_...`. `/paid` yedek.
 
 İlan eklerken **authority score** (0–100) yazılır; katalog ve bot listesinde görünür.
 

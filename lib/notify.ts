@@ -89,7 +89,7 @@ export function expiredAdminText(order: Order, listing: Listing) {
     `${listing.title} · ${formatUsdt(order.amount)}`,
     `Alıcı: <code>${order.telegramUserId}</code>`,
     `Sipariş: <code>${order.id}</code>`,
-    "İlan tekrar available. Geç TX için acil yedek: /paid",
+    "İlan tekrar available. Geç TX için acil yedek: /accept",
   ].join("\n");
 }
 
@@ -109,7 +109,7 @@ export function underpaidAdminText(order: Order, listing: Listing) {
     `${listing.title} · beklenen ${formatUsdt(order.amount)}, gelen ${formatUsdt(order.receivedAmount ?? 0)}`,
     `Alıcı: <code>${order.telegramUserId}</code>`,
     order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
-    "paid olmadı. Elle /paid yalnızca acil yedek.",
+    "paid olmadı. Elle /accept yalnızca acil yedek.",
   ]
     .filter(Boolean)
     .join("\n");
@@ -130,7 +130,7 @@ export function lateTxAdminText(txId: string, amount: number) {
   return [
     `<b>Geç TX</b> — pencere dışında geldi, otomatik eşleşme yok.`,
     `${formatUsdt(amount)} · TX: <code>${txId}</code>`,
-    "Acil yedek: /paid &lt;sipariş-id&gt;",
+    "Acil yedek: /accept &lt;sipariş-id&gt;";
   ].join("\n");
 }
 
@@ -216,7 +216,7 @@ export async function notifyTopupAwaitingAdmin(order: Order) {
       `${formatUsdt(order.amount)} TX görüldü. Bakiye henüz yazılmadı.`,
       `Alıcı: <code>${order.telegramUserId}</code>`,
       order.matchedTxId ? `TX: <code>${order.matchedTxId}</code>` : "",
-      `Onayla: /paid ${order.id}`,
+      `Onayla: /accept ${order.id}`,
       `Reddet: /expire ${order.id}`,
     ]
       .filter(Boolean)

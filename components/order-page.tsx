@@ -255,7 +255,7 @@ export function OrderPage({ id }: { id: string }) {
                 LOCAL — NİZAM ONAYI
               </p>
               <p className="mt-2 text-sm text-white/60">
-                Prod’da bunu bot’tan /paid ile sen yaparsın.
+                Prod’da bunu bot’tan /accept ile sen yaparsın.
               </p>
               <Button
                 className="mt-3 rounded-full bg-white text-black"

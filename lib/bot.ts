@@ -244,7 +244,8 @@ const PUBLIC_COMMANDS = [
 
 const ADMIN_COMMANDS = [
   ...PUBLIC_COMMANDS,
-  { command: "paid", description: "Top-up onayla: /paid ord_..." },
+  { command: "accept", description: "Yatırımı onayla: /accept ord_..." },
+  { command: "paid", description: "Onay yedek: /paid ord_..." },
   { command: "expire", description: "Siparişi iptal: /expire ord_..." },
   { command: "teslim", description: "Giriş bilgisi gönder" },
   { command: "help", description: "Yönetici komutları" },
@@ -318,14 +319,14 @@ export function getBot() {
   bot.hears(/Siparişlerim/, replySiparisler);
   bot.hears(/Bakiye/, replyBakiye);
 
-  bot.command("paid", async (ctx) => {
+  bot.command(["accept", "paid"], async (ctx) => {
     if (!ctx.from || !isAdmin(ctx.from.id)) {
       await ctx.reply("Bu komut yalnızca yönetici.");
       return;
     }
     const orderId = String(ctx.match ?? "").trim();
     if (!orderId) {
-      await ctx.reply("Kullanım: /paid ord_...");
+      await ctx.reply("Kullanım: /accept ord_...");
       return;
     }
     const result = await markOrder(orderId, "paid", {
@@ -375,7 +376,8 @@ export function getBot() {
     await ctx.reply(
       [
         "Yönetici",
-        "/paid ord_... — görülen transferi bakiyeye yaz",
+        "/accept ord_... — görülen transferi bakiyeye yaz",
+        "/paid ord_... — aynı iş (yedek)",
         "/expire ord_... — yüklemeyi iptal et",
         "/teslim ord_... kullanıcı şifre panel — giriş bilgilerini alıcıya gönder",
         "Satır kırarak da yazabilirsin; ilk kelime sipariş id.",
@@ -403,7 +405,7 @@ export function getBot() {
       return;
     }
     if (isTopup(order)) {
-      await ctx.reply("Bu bir bakiye yüklemesi — /paid ile onayla.");
+      await ctx.reply("Bu bir bakiye yüklemesi — /accept ile onayla.");
       return;
     }
     if (order.status !== "paid") {
